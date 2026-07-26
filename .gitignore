@@ -1,0 +1,28 @@
+# --- Python / Django (backend) ---
+__pycache__/
+*.py[cod]
+*.sqlite3
+venv/
+env/
+backend/media/
+backend/staticfiles/
+*.log
+.env
+.env.*
+
+# --- Node / Expo (mobile) ---
+mobile/node_modules/
+mobile/.expo/
+mobile/dist/
+mobile/web-build/
+mobile/*.jks
+mobile/*.p8
+mobile/*.p12
+mobile/*.key
+mobile/*.mobileprovision
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
