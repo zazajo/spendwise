@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.models import User
 from .models import Profile, UserPreference
 
@@ -52,8 +53,21 @@ class UserPreferenceSerializer(serializers.ModelSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer(read_only=True)
     preferences = UserPreferenceSerializer(read_only=True)
-    
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 
+        fields = ['id', 'username', 'email', 'first_name', 'last_name',
                   'date_joined', 'profile', 'preferences']
+
+
+class MobileTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """
+    Same as the default JWT login, but bundles the user's profile into the
+    response so the app can render the home screen right after login
+    without a second round trip to /users/me/.
+    """
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        data['user'] = UserDetailSerializer(self.user).data
+        return data

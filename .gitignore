@@ -9,6 +9,7 @@ backend/staticfiles/
 *.log
 .env
 .env.*
+!.env.example
 
 # --- Node / Expo (mobile) ---
 mobile/node_modules/

@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Count, Sum
+from rest_framework.permissions import IsAuthenticated
 from spendwise.permissions import IsOwnerOrReadOnly
 from .models import Category
 from .serializers import CategorySerializer
@@ -14,7 +15,10 @@ class CategoryViewSet(viewsets.ModelViewSet):
     Users can only access their own categories.
     """
     serializer_class = CategorySerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    # IsOwnerOrReadOnly only guards object-level writes; without IsAuthenticated
+    # here too, anonymous requests were reaching get_queryset() and blowing up
+    # trying to filter by AnonymousUser.
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category_type', 'is_active', 'is_default']
     search_fields = ['name', 'description']

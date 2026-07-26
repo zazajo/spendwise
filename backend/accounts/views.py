@@ -1,11 +1,16 @@
 from rest_framework import generics, permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 from django.contrib.auth.models import User
 from .models import Profile, UserPreference
 from .serializers import (
-    UserSerializer, UserRegistrationSerializer, 
-    ProfileSerializer, UserPreferenceSerializer, UserDetailSerializer
+    UserSerializer, UserRegistrationSerializer,
+    ProfileSerializer, UserPreferenceSerializer, UserDetailSerializer,
+    MobileTokenObtainPairSerializer,
 )
 from spendwise.permissions import IsOwner
 
@@ -19,15 +24,47 @@ class UserRegistrationView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+            # Log the user in immediately so the app doesn't need a
+            # separate login call right after registering.
+            refresh = RefreshToken.for_user(user)
             return Response({
                 'user': {
                     'id': user.id,
                     'username': user.username,
                     'email': user.email
                 },
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
                 'message': 'User created successfully'
             }, status=201)
         return Response(serializer.errors, status=400)
+
+
+class MobileTokenObtainPairView(TokenObtainPairView):
+    """Login endpoint. Returns access/refresh tokens plus the user's profile."""
+    serializer_class = MobileTokenObtainPairSerializer
+
+
+class LogoutView(APIView):
+    """
+    Blacklists the given refresh token so it can't be used again.
+    The access token stays valid until it naturally expires (it's never
+    checked against the blacklist), so this is really "stop refreshing",
+    not an instant kill switch - fine for our short access token lifetime.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        refresh_token = request.data.get('refresh')
+        if not refresh_token:
+            return Response({'error': 'refresh token is required'}, status=400)
+
+        try:
+            RefreshToken(refresh_token).blacklist()
+        except TokenError:
+            return Response({'error': 'Invalid or expired refresh token'}, status=400)
+
+        return Response({'message': 'Successfully logged out'})
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
