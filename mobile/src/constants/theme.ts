@@ -14,6 +14,15 @@ export const Colors = {
     backgroundElement: '#F0F0F3',
     backgroundSelected: '#E0E1E6',
     textSecondary: '#60646C',
+    primary: '#4F46E5',
+    primarySoft: '#EEF2FF',
+    success: '#16A34A',
+    successSoft: '#DCFCE7',
+    warning: '#D97706',
+    warningSoft: '#FEF3C7',
+    danger: '#DC2626',
+    dangerSoft: '#FEE2E2',
+    border: '#E5E7EB',
   },
   dark: {
     text: '#ffffff',
@@ -21,6 +30,15 @@ export const Colors = {
     backgroundElement: '#212225',
     backgroundSelected: '#2E3135',
     textSecondary: '#B0B4BA',
+    primary: '#818CF8',
+    primarySoft: '#312E81',
+    success: '#4ADE80',
+    successSoft: '#14532D',
+    warning: '#FBBF24',
+    warningSoft: '#78350F',
+    danger: '#F87171',
+    dangerSoft: '#7F1D1D',
+    border: '#2E3135',
   },
 } as const;
 
@@ -63,3 +81,10 @@ export const Spacing = {
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
 export const MaxContentWidth = 800;
+
+export const Radius = {
+  small: 8,
+  medium: 12,
+  large: 20,
+  pill: 999,
+} as const;

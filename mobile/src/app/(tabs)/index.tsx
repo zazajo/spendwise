@@ -1,22 +1,128 @@
-import { StyleSheet } from 'react-native';
+import { router } from 'expo-router';
+import { RefreshControl, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ThemedText } from '@/components/themed-text';
+import { BudgetProgressCard } from '@/components/dashboard/budget-progress-card';
+import { CategoryBreakdownSection } from '@/components/dashboard/category-breakdown-section';
+import { DashboardSkeleton } from '@/components/dashboard/dashboard-skeleton';
+import { GreetingHeader } from '@/components/dashboard/greeting-header';
+import { GroupsSummaryCard } from '@/components/dashboard/groups-summary-card';
+import { MonthSummaryCard } from '@/components/dashboard/month-summary-card';
+import { QuickActions } from '@/components/dashboard/quick-actions';
+import { RecentExpensesSection } from '@/components/dashboard/recent-expenses-section';
+import { ErrorState } from '@/components/error-state';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { useAuth } from '@/hooks/use-auth';
+import { useDashboard } from '@/hooks/use-dashboard';
+
+const EMPTY_MONTH_SUMMARY = { totalAmount: 0, expenseCount: 0, categories: [] };
+const EMPTY_BUDGET_OVERVIEW = {
+  totalBudget: 0,
+  totalSpent: 0,
+  remainingTotal: 0,
+  budgetsCount: 0,
+  percentageUsed: 0,
+  status: 'none' as const,
+};
 
 export default function HomeScreen() {
-  const { user } = useAuth();
-  const name = user?.first_name || user?.username;
+  const {
+    user,
+    currency,
+    greeting,
+    monthSummary,
+    recentExpenses,
+    budgetOverview,
+    groups,
+    isLoading,
+    isError,
+    isRefetching,
+    refetchAll,
+  } = useDashboard();
+
+  const name = user?.first_name || user?.username || '';
+  const monthData = monthSummary ?? EMPTY_MONTH_SUMMARY;
+  const budgetData = budgetOverview ?? EMPTY_BUDGET_OVERVIEW;
+
+  if (isLoading) {
+    return (
+      <ThemedView style={styles.container}>
+        <SafeAreaView style={styles.safeArea}>
+          <ScrollView contentContainerStyle={styles.content}>
+            <DashboardSkeleton />
+          </ScrollView>
+        </SafeAreaView>
+      </ThemedView>
+    );
+  }
+
+  if (isError) {
+    return (
+      <ThemedView style={styles.container}>
+        <SafeAreaView style={styles.safeArea}>
+          <ErrorState message="Couldn't load your dashboard." onRetry={refetchAll} />
+        </SafeAreaView>
+      </ThemedView>
+    );
+  }
 
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <ThemedText type="title" style={styles.title}>
-          Hi, {name}
-        </ThemedText>
-        <ThemedText themeColor="textSecondary">Your spending overview will live here.</ThemedText>
+        <ScrollView
+          contentContainerStyle={styles.content}
+          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetchAll} />}>
+          <GreetingHeader name={name} greeting={greeting} />
+
+          <MonthSummaryCard
+            totalAmount={monthData.totalAmount}
+            currency={currency}
+            expenseCount={monthData.expenseCount}
+          />
+
+          <BudgetProgressCard
+            overview={budgetData}
+            currency={currency}
+            onSetBudget={() => router.push('/budgets')}
+          />
+
+          <QuickActions
+            actions={[
+              {
+                key: 'add',
+                label: 'Add Expense',
+                icon: 'add-circle-outline',
+                onPress: () => router.push('/expenses/new'),
+              },
+              {
+                key: 'all',
+                label: 'All Expenses',
+                icon: 'list-outline',
+                onPress: () => router.push('/expenses'),
+              },
+              {
+                key: 'budgets',
+                label: 'Budgets',
+                icon: 'wallet-outline',
+                onPress: () => router.push('/budgets'),
+              },
+            ]}
+          />
+
+          <GroupsSummaryCard groups={groups} onPress={() => router.push('/groups')} />
+
+          <RecentExpensesSection
+            expenses={recentExpenses}
+            currency={currency}
+            onPressExpense={(id) =>
+              router.push({ pathname: '/expenses/[id]', params: { id: String(id) } })
+            }
+            onSeeAll={() => router.push('/expenses')}
+            onAddExpense={() => router.push('/expenses/new')}
+          />
+
+          <CategoryBreakdownSection categories={monthData.categories} currency={currency} />
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );
@@ -25,20 +131,16 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
   },
   safeArea: {
     flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.two,
-    paddingTop: Spacing.six,
-    paddingBottom: BottomTabInset + Spacing.three,
+  },
+  content: {
+    padding: Spacing.four,
+    gap: Spacing.four,
     maxWidth: MaxContentWidth,
     width: '100%',
-  },
-  title: {
-    fontSize: 32,
-    lineHeight: 38,
+    alignSelf: 'center',
+    paddingBottom: BottomTabInset + Spacing.four,
   },
 });

@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import {
   Tabs,
   TabList,
@@ -6,7 +7,6 @@ import {
   TabTriggerSlotProps,
   TabListProps,
 } from 'expo-router/ui';
-import { SymbolView } from 'expo-symbols';
 import { Pressable, useColorScheme, View, StyleSheet } from 'react-native';
 
 import { ExternalLink } from './external-link';
@@ -29,6 +29,12 @@ export default function AppTabs() {
           </TabTrigger>
           <TabTrigger name="budgets" href="/budgets" asChild>
             <TabButton>Budgets</TabButton>
+          </TabTrigger>
+          <TabTrigger name="analytics" href="/analytics" asChild>
+            <TabButton>Analytics</TabButton>
+          </TabTrigger>
+          <TabTrigger name="groups" href="/groups" asChild>
+            <TabButton>Groups</TabButton>
           </TabTrigger>
           <TabTrigger name="profile" href="/profile" asChild>
             <TabButton>Profile</TabButton>
@@ -55,10 +61,10 @@ export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps
 
 export function CustomTabList(props: TabListProps) {
   const scheme = useColorScheme();
-  const colors = Colors[scheme === 'unspecified' ? 'light' : scheme];
+  const colors = Colors[scheme ?? 'light'];
 
   return (
-    <View {...props} style={styles.tabListContainer}>
+    <View {...props} style={styles.tabListContainer} pointerEvents="box-none">
       <ThemedView type="backgroundElement" style={styles.innerContainer}>
         <ThemedText type="smallBold" style={styles.brandText}>
           SpendWise
@@ -69,11 +75,7 @@ export function CustomTabList(props: TabListProps) {
         <ExternalLink href="https://docs.expo.dev" asChild>
           <Pressable style={styles.externalPressable}>
             <ThemedText type="link">Docs</ThemedText>
-            <SymbolView
-              tintColor={colors.text}
-              name={{ ios: 'arrow.up.right.square', web: 'link' }}
-              size={12}
-            />
+            <Ionicons name="open-outline" size={12} color={colors.text} />
           </Pressable>
         </ExternalLink>
       </ThemedView>

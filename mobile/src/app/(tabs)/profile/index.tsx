@@ -1,4 +1,6 @@
-import { Pressable, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -6,9 +8,11 @@ import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useAuth } from '@/hooks/use-auth';
 import { useLogout } from '@/hooks/use-logout';
+import { useTheme } from '@/hooks/use-theme';
 
 export default function ProfileScreen() {
   const { user } = useAuth();
+  const theme = useTheme();
   const logout = useLogout();
 
   return (
@@ -26,6 +30,18 @@ export default function ProfileScreen() {
           </ThemedText>
           <ThemedText themeColor="textSecondary">{user?.email}</ThemedText>
         </ThemedView>
+
+        <Pressable
+          onPress={() => router.push('/profile/categories')}
+          style={({ pressed }) => [styles.navRow, pressed && styles.pressed]}>
+          <ThemedView type="backgroundElement" style={styles.navRowInner}>
+            <View style={styles.navRowLeft}>
+              <Ionicons name="pricetags-outline" size={20} color={theme.text} />
+              <ThemedText type="smallBold">Categories</ThemedText>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+          </ThemedView>
+        </Pressable>
 
         <Pressable
           disabled={logout.isPending}
@@ -64,6 +80,21 @@ const styles = StyleSheet.create({
   },
   cardSpacing: {
     marginTop: Spacing.two,
+  },
+  navRow: {
+    borderRadius: Spacing.three,
+  },
+  navRowInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: Spacing.three,
+    padding: Spacing.three,
+  },
+  navRowLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
   },
   button: {
     borderRadius: Spacing.two,

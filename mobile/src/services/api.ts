@@ -3,7 +3,11 @@ import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { API_BASE_URL } from '@/constants/config';
 import { clearStoredTokens, getStoredTokens, setStoredTokens } from '@/services/tokenStorage';
 
-export const api = axios.create({ baseURL: API_BASE_URL });
+// Without a timeout, a dead/unreachable backend leaves requests hanging on
+// the OS's own TCP timeout (which can be 60s+, especially if a firewall
+// silently drops packets instead of sending a RST) instead of surfacing an
+// error in a reasonable time.
+export const api = axios.create({ baseURL: API_BASE_URL, timeout: 15_000 });
 
 // Kept in memory (not read from SecureStore on every request) and mirrored into
 // SecureStore whenever it changes via login/refresh/logout.

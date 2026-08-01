@@ -1,0 +1,56 @@
+import type { Ionicons } from '@expo/vector-icons';
+
+export const CATEGORY_COLORS = [
+  '#EF4444',
+  '#F97316',
+  '#F59E0B',
+  '#EAB308',
+  '#84CC16',
+  '#22C55E',
+  '#10B981',
+  '#14B8A6',
+  '#06B6D4',
+  '#0EA5E9',
+  '#3B82F6',
+  '#6366F1',
+  '#8B5CF6',
+  '#A855F7',
+  '#EC4899',
+  '#78716C',
+] as const;
+
+export const CATEGORY_ICONS: (keyof typeof Ionicons.glyphMap)[] = [
+  'fast-food-outline',
+  'cafe-outline',
+  'car-outline',
+  'bus-outline',
+  'airplane-outline',
+  'cart-outline',
+  'shirt-outline',
+  'pricetag-outline',
+  'film-outline',
+  'game-controller-outline',
+  'musical-notes-outline',
+  'medkit-outline',
+  'fitness-outline',
+  'heart-outline',
+  'school-outline',
+  'home-outline',
+  'flash-outline',
+  'water-outline',
+  'wifi-outline',
+  'build-outline',
+  'cash-outline',
+  'trending-up-outline',
+  'wallet-outline',
+  'card-outline',
+  'briefcase-outline',
+  'gift-outline',
+  'paw-outline',
+  'receipt-outline',
+  'swap-horizontal-outline',
+  'ellipsis-horizontal-circle-outline',
+];
+
+export const DEFAULT_CATEGORY_COLOR = CATEGORY_COLORS[10];
+export const DEFAULT_CATEGORY_ICON = CATEGORY_ICONS[27];

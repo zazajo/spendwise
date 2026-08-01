@@ -1,11 +1,11 @@
-import { NativeTabs } from 'expo-router/unstable-native-tabs';
+import { Icon, Label, NativeTabs } from 'expo-router/unstable-native-tabs';
 import { useColorScheme } from 'react-native';
 
 import { Colors } from '@/constants/theme';
 
 export default function AppTabs() {
   const scheme = useColorScheme();
-  const colors = Colors[scheme === 'unspecified' ? 'light' : scheme];
+  const colors = Colors[scheme ?? 'light'];
 
   return (
     <NativeTabs
@@ -13,29 +13,33 @@ export default function AppTabs() {
       indicatorColor={colors.backgroundElement}
       labelStyle={{ selected: { color: colors.text } }}>
       <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf={{ default: 'house', selected: 'house.fill' }} md="home" />
+        <Label>Home</Label>
+        <Icon sf={{ default: 'house', selected: 'house.fill' }} />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="expenses">
-        <NativeTabs.Trigger.Label>Expenses</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          sf={{ default: 'creditcard', selected: 'creditcard.fill' }}
-          md="payments"
-        />
+        <Label>Expenses</Label>
+        <Icon sf={{ default: 'creditcard', selected: 'creditcard.fill' }} />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="budgets">
-        <NativeTabs.Trigger.Label>Budgets</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          sf={{ default: 'chart.pie', selected: 'chart.pie.fill' }}
-          md="pie_chart"
-        />
+        <Label>Budgets</Label>
+        <Icon sf={{ default: 'chart.pie', selected: 'chart.pie.fill' }} />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="analytics">
+        <Label>Analytics</Label>
+        <Icon sf={{ default: 'chart.bar', selected: 'chart.bar.fill' }} />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="groups">
+        <Label>Groups</Label>
+        <Icon sf={{ default: 'person.2', selected: 'person.2.fill' }} />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="profile">
-        <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf={{ default: 'person', selected: 'person.fill' }} md="person" />
+        <Label>Profile</Label>
+        <Icon sf={{ default: 'person', selected: 'person.fill' }} />
       </NativeTabs.Trigger>
     </NativeTabs>
   );

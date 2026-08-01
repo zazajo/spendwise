@@ -194,6 +194,6 @@ class GroupSettlementSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = GroupSettlement
-        fields = ['id', 'from_user', 'from_user_name', 'to_user', 'to_user_name', 
+        fields = ['id', 'group', 'from_user', 'from_user_name', 'to_user', 'to_user_name',
                   'amount', 'settled_at', 'notes']
         read_only_fields = ['id', 'settled_at']
