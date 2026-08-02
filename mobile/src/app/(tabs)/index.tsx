@@ -10,6 +10,7 @@ import { GroupsSummaryCard } from '@/components/dashboard/groups-summary-card';
 import { MonthSummaryCard } from '@/components/dashboard/month-summary-card';
 import { QuickActions } from '@/components/dashboard/quick-actions';
 import { RecentExpensesSection } from '@/components/dashboard/recent-expenses-section';
+import { RecurringUpcomingCard } from '@/components/dashboard/recurring-upcoming-card';
 import { ErrorState } from '@/components/error-state';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
@@ -34,6 +35,7 @@ export default function HomeScreen() {
     recentExpenses,
     budgetOverview,
     groups,
+    recurringUpcoming,
     isLoading,
     isError,
     isRefetching,
@@ -106,10 +108,22 @@ export default function HomeScreen() {
                 icon: 'wallet-outline',
                 onPress: () => router.push('/budgets'),
               },
+              {
+                key: 'recurring',
+                label: 'Recurring',
+                icon: 'repeat-outline',
+                onPress: () => router.push('/profile/recurring'),
+              },
             ]}
           />
 
           <GroupsSummaryCard groups={groups} onPress={() => router.push('/groups')} />
+
+          <RecurringUpcomingCard
+            items={recurringUpcoming}
+            currency={currency}
+            onPress={() => router.push('/profile/recurring')}
+          />
 
           <RecentExpensesSection
             expenses={recentExpenses}

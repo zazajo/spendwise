@@ -44,6 +44,18 @@ export default function ProfileScreen() {
         </Pressable>
 
         <Pressable
+          onPress={() => router.push('/profile/recurring')}
+          style={({ pressed }) => [styles.navRow, pressed && styles.pressed]}>
+          <ThemedView type="backgroundElement" style={styles.navRowInner}>
+            <View style={styles.navRowLeft}>
+              <Ionicons name="repeat-outline" size={20} color={theme.text} />
+              <ThemedText type="smallBold">Recurring Expenses</ThemedText>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+          </ThemedView>
+        </Pressable>
+
+        <Pressable
           disabled={logout.isPending}
           onPress={() => logout.mutate()}
           style={({ pressed }) => [styles.button, pressed && styles.pressed]}>

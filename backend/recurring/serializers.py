@@ -11,7 +11,7 @@ class RecurringExpenseSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecurringExpense
         fields = [
-            'id', 'amount', 'description', 'frequency', 'interval',
+            'id', 'amount', 'description', 'notes', 'frequency', 'interval',
             'start_date', 'end_date', 'next_occurrence', 'next_occurrence_display',
             'last_occurrence', 'is_active', 'auto_create',
             'user', 'category', 'category_name', 'payment_method', 'payment_method_name',

@@ -11,6 +11,14 @@ export default function ProfileLayout() {
         name="categories/edit/[id]"
         options={{ title: 'Edit Category', presentation: 'modal' }}
       />
+      <Stack.Screen name="recurring/index" options={{ title: 'Recurring Expenses' }} />
+      <Stack.Screen name="recurring/list" options={{ title: 'Recurring Expenses' }} />
+      <Stack.Screen name="recurring/new" options={{ title: 'New Recurring Expense', presentation: 'modal' }} />
+      <Stack.Screen name="recurring/[id]" options={{ title: 'Recurring Expense' }} />
+      <Stack.Screen
+        name="recurring/edit/[id]"
+        options={{ title: 'Edit Recurring Expense', presentation: 'modal' }}
+      />
     </Stack>
   );
 }
