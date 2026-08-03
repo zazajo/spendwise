@@ -41,11 +41,14 @@ export function QuickActions({ actions }: QuickActionsProps) {
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     gap: Spacing.two,
+    rowGap: Spacing.three,
   },
   action: {
-    flex: 1,
+    flexBasis: '30%',
+    flexGrow: 1,
     alignItems: 'center',
     gap: Spacing.one,
   },

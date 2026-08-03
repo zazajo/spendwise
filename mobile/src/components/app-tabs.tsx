@@ -32,11 +32,6 @@ export default function AppTabs() {
         <Icon sf={{ default: 'chart.bar', selected: 'chart.bar.fill' }} />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="groups">
-        <Label>Groups</Label>
-        <Icon sf={{ default: 'person.2', selected: 'person.2.fill' }} />
-      </NativeTabs.Trigger>
-
       <NativeTabs.Trigger name="profile">
         <Label>Profile</Label>
         <Icon sf={{ default: 'person', selected: 'person.fill' }} />

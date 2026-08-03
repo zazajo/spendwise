@@ -76,7 +76,11 @@ export default function HomeScreen() {
         <ScrollView
           contentContainerStyle={styles.content}
           refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetchAll} />}>
-          <GreetingHeader name={name} greeting={greeting} />
+          <GreetingHeader
+            name={name}
+            greeting={greeting}
+            onPressAvatar={() => router.push('/profile')}
+          />
 
           <MonthSummaryCard
             totalAmount={monthData.totalAmount}
@@ -109,6 +113,12 @@ export default function HomeScreen() {
                 label: 'Budgets',
                 icon: 'wallet-outline',
                 onPress: () => router.push('/budgets'),
+              },
+              {
+                key: 'groups',
+                label: 'Groups',
+                icon: 'people-outline',
+                onPress: () => router.push('/groups'),
               },
               {
                 key: 'recurring',

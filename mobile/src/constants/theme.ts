@@ -79,7 +79,9 @@ export const Spacing = {
   six: 64,
 } as const;
 
-export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
+// Web's floating pill tab bar (see app-tabs.web.tsx) sits low in the viewport with its
+// own padding, so the FAB needs more clearance here than the native tab bar heights below.
+export const BottomTabInset = Platform.select({ ios: 50, android: 80, web: 90 }) ?? 0;
 export const MaxContentWidth = 800;
 
 export const Radius = {

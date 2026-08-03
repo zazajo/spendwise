@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/hooks/use-theme';
@@ -6,9 +6,10 @@ import { useTheme } from '@/hooks/use-theme';
 type GreetingHeaderProps = {
   name: string;
   greeting: string;
+  onPressAvatar?: () => void;
 };
 
-export function GreetingHeader({ name, greeting }: GreetingHeaderProps) {
+export function GreetingHeader({ name, greeting, onPressAvatar }: GreetingHeaderProps) {
   const theme = useTheme();
   const initial = name.charAt(0).toUpperCase() || '?';
 
@@ -28,11 +29,20 @@ export function GreetingHeader({ name, greeting }: GreetingHeaderProps) {
           {greeting}, {name}
         </ThemedText>
       </View>
-      <View style={[styles.avatar, { backgroundColor: theme.primary }]}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Open profile"
+        disabled={!onPressAvatar}
+        onPress={onPressAvatar}
+        style={({ pressed }) => [
+          styles.avatar,
+          { backgroundColor: theme.primary },
+          pressed && styles.pressed,
+        ]}>
         <ThemedText type="smallBold" style={styles.avatarText}>
           {initial}
         </ThemedText>
-      </View>
+      </Pressable>
     </View>
   );
 }
@@ -61,5 +71,8 @@ const styles = StyleSheet.create({
   avatarText: {
     color: '#ffffff',
     fontSize: 18,
+  },
+  pressed: {
+    opacity: 0.7,
   },
 });
