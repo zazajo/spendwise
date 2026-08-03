@@ -7,6 +7,7 @@ import { BudgetStatusBadge } from '@/components/budget-status-badge';
 import { Card } from '@/components/card';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EmptyState } from '@/components/empty-state';
+import { ErrorState } from '@/components/error-state';
 import { ExpenseListItem } from '@/components/expense-list-item';
 import { ProgressBar } from '@/components/progress-bar';
 import { SectionHeader } from '@/components/section-header';
@@ -39,7 +40,7 @@ export default function BudgetDetailScreen() {
   const currency = user?.profile.currency ?? '';
   const theme = useTheme();
 
-  const { data: budget, isLoading, isError } = useBudget(budgetId);
+  const { data: budget, isLoading, isError, refetch } = useBudget(budgetId);
   const { data: recentExpenses = [] } = useBudgetExpenses(budget);
   const deleteBudget = useDeleteBudget();
   const refreshBudget = useRefreshBudget();
@@ -67,7 +68,7 @@ export default function BudgetDetailScreen() {
   if (isError || !budget) {
     return (
       <ThemedView style={styles.centerContainer}>
-        <ThemedText themeColor="textSecondary">Couldn&apos;t load this budget.</ThemedText>
+        <ErrorState message="Couldn't load this budget." onRetry={refetch} />
       </ThemedView>
     );
   }

@@ -11,7 +11,7 @@ from .models import Group, GroupMembership, GroupExpense, GroupExpenseSplit, Gro
 from .serializers import (
     GroupSerializer, GroupMembershipSerializer, GroupInviteSerializer,
     GroupExpenseSerializer, GroupExpenseCreateSerializer,
-    GroupBalanceSerializer, GroupSettlementSerializer
+    GroupSettlementSerializer
 )
 
 class GroupViewSet(viewsets.ModelViewSet):
@@ -135,8 +135,16 @@ class GroupViewSet(viewsets.ModelViewSet):
                 {'error': 'User ID is required'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
-        if int(user_id) == request.user.id:
+
+        try:
+            user_id = int(user_id)
+        except (TypeError, ValueError):
+            return Response(
+                {'error': 'User ID must be a number'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if user_id == request.user.id:
             return Response(
                 {'error': 'Cannot remove yourself. Use /leave/ endpoint instead.'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -199,12 +207,22 @@ class GroupViewSet(viewsets.ModelViewSet):
                 user=member,
                 is_paid=False
             ).aggregate(Sum('amount'))['amount__sum'] or 0
-            
+
+            # Lump-sum settlements already recorded between members reduce the
+            # net balance without touching individual split rows, so they must
+            # be folded in here or "Mark settled" has no effect on the balance.
+            settlements_paid = GroupSettlement.objects.filter(
+                group=group, from_user=member
+            ).aggregate(Sum('amount'))['amount__sum'] or 0
+            settlements_received = GroupSettlement.objects.filter(
+                group=group, to_user=member
+            ).aggregate(Sum('amount'))['amount__sum'] or 0
+
             # Get nickname if available
             membership = GroupMembership.objects.filter(group=group, user=member).first()
             nickname = membership.nickname if membership else ''
-            
-            net_balance = paid - owed
+
+            net_balance = (paid - owed) + settlements_paid - settlements_received
             
             balances.append({
                 'user_id': member.id,
@@ -227,23 +245,29 @@ class GroupViewSet(viewsets.ModelViewSet):
         })
 
     def _calculate_settlements(self, balances):
-        """Calculate who should pay whom"""
-        # Separate creditors and debtors
-        creditors = [b for b in balances if b['balance'] > 0]
-        debtors = [b for b in balances if b['balance'] < 0]
-        
+        """Calculate who should pay whom.
+
+        Operates on a local copy of each member's balance so the `balances`
+        list passed in (and returned to the client as-is) isn't mutated as
+        creditors get "paid down" here.
+        """
+        remaining = {b['user_id']: b['balance'] for b in balances}
+        creditors = sorted([b for b in balances if b['balance'] > 0], key=lambda x: x['balance'])
+        debtors = sorted([b for b in balances if b['balance'] < 0], key=lambda x: x['balance'])
+
         settlements = []
-        
-        for debtor in sorted(debtors, key=lambda x: x['balance']):
-            amount_owed = -debtor['balance']
-            
-            for creditor in sorted(creditors, key=lambda x: x['balance']):
+
+        for debtor in debtors:
+            amount_owed = -remaining[debtor['user_id']]
+
+            for creditor in creditors:
                 if amount_owed <= 0:
                     break
-                if creditor['balance'] <= 0:
+                creditor_balance = remaining[creditor['user_id']]
+                if creditor_balance <= 0:
                     continue
-                
-                payment = min(amount_owed, creditor['balance'])
+
+                payment = min(amount_owed, creditor_balance)
                 if payment > 0:
                     settlements.append({
                         'from': debtor['username'],
@@ -253,8 +277,8 @@ class GroupViewSet(viewsets.ModelViewSet):
                         'amount': payment
                     })
                     amount_owed -= payment
-                    creditor['balance'] -= payment
-        
+                    remaining[creditor['user_id']] -= payment
+
         return settlements
 
     @action(detail=True, methods=['get'])
@@ -287,7 +311,7 @@ class GroupExpenseViewSet(viewsets.ModelViewSet):
         ).select_related('group', 'paid_by').prefetch_related('splits__user')
 
     def get_serializer_class(self):
-        if self.action == 'create':
+        if self.action in ('create', 'update', 'partial_update'):
             return GroupExpenseCreateSerializer
         return GroupExpenseSerializer
 

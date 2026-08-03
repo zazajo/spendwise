@@ -99,27 +99,6 @@ class GroupExpense(models.Model):
     def __str__(self):
         return f"{self.description} - {self.amount}"
 
-    def calculate_splits(self):
-        """Calculate how much each member owes"""
-        members = self.group.members.all()
-        member_count = members.count()
-        
-        if self.split_type == 'equal':
-            split_amount = self.amount / member_count
-            return {member.id: split_amount for member in members}
-        
-        elif self.split_type == 'percentage':
-            # Would need additional data from a custom model
-            pass
-        
-        elif self.split_type == 'custom':
-            # Would use GroupExpenseSplit model
-            splits = self.splits.all()
-            return {split.user_id: split.amount for split in splits}
-        
-        return {}
-
-
 class GroupExpenseSplit(models.Model):
     group_expense = models.ForeignKey(GroupExpense, on_delete=models.CASCADE, related_name='splits')
     user = models.ForeignKey(User, on_delete=models.CASCADE)

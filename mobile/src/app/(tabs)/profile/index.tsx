@@ -68,10 +68,28 @@ export default function ProfileScreen() {
         </Pressable>
 
         <Pressable
+          onPress={() => router.push('/profile/settings')}
+          style={({ pressed }) => [styles.navRow, pressed && styles.pressed]}>
+          <ThemedView type="backgroundElement" style={styles.navRowInner}>
+            <View style={styles.navRowLeft}>
+              <Ionicons name="settings-outline" size={20} color={theme.text} />
+              <ThemedText type="smallBold">Settings</ThemedText>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+          </ThemedView>
+        </Pressable>
+
+        <Pressable
           disabled={logout.isPending}
           onPress={() => logout.mutate()}
-          style={({ pressed }) => [styles.button, pressed && styles.pressed]}>
-          <ThemedText type="smallBold">{logout.isPending ? 'Logging out…' : 'Log out'}</ThemedText>
+          style={({ pressed }) => [
+            styles.button,
+            { borderColor: theme.danger },
+            pressed && styles.pressed,
+          ]}>
+          <ThemedText type="smallBold" themeColor="danger">
+            {logout.isPending ? 'Logging out…' : 'Log out'}
+          </ThemedText>
         </Pressable>
       </SafeAreaView>
     </ThemedView>
@@ -125,7 +143,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.three,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E5484D',
   },
   pressed: {
     opacity: 0.7,

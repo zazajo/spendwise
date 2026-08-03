@@ -61,14 +61,3 @@ class BudgetAlertSerializer(serializers.ModelSerializer):
         fields = ['id', 'alert_type', 'message', 'sent_at', 'is_read',
                   'budget', 'budget_category', 'budget_amount']
         read_only_fields = ['id', 'sent_at']
-
-
-class BudgetSummarySerializer(serializers.Serializer):
-    """Serializer for budget summaries"""
-    total_budget = serializers.DecimalField(max_digits=10, decimal_places=2)
-    total_spent = serializers.DecimalField(max_digits=10, decimal_places=2)
-    remaining_total = serializers.DecimalField(max_digits=10, decimal_places=2)
-    budgets_count = serializers.IntegerField()
-    budgets_on_track = serializers.IntegerField()
-    budgets_warning = serializers.IntegerField()
-    budgets_exceeded = serializers.IntegerField()

@@ -146,26 +146,3 @@ class FinancialHealthMetricSerializer(serializers.ModelSerializer):
                 instance.set_recommendations(recommendations)
         instance.save()
         return instance
-
-
-class SpendingTrendSerializer(serializers.Serializer):
-    """Serializer for spending trend analysis"""
-    month = serializers.CharField()
-    year = serializers.IntegerField()
-    total_spent = serializers.DecimalField(max_digits=10, decimal_places=2)
-    previous_month_change = serializers.FloatField(required=False)
-    category_breakdown = serializers.DictField()
-
-
-class AnomalyDetectionResultSerializer(serializers.Serializer):
-    """Serializer for anomaly detection results"""
-    expense_id = serializers.IntegerField()
-    amount = serializers.DecimalField(max_digits=10, decimal_places=2)
-    description = serializers.CharField()
-    date = serializers.DateField()
-    category = serializers.CharField()
-    category_id = serializers.IntegerField()
-    anomaly_score = serializers.FloatField()
-    reason = serializers.CharField()
-    severity = serializers.CharField()
-    expected_range = serializers.CharField()

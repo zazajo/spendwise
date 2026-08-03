@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { ExpenseForm } from '@/components/expense-form';
 import { ThemedView } from '@/components/themed-view';
 import { useCreateExpense } from '@/hooks/use-create-expense';
+import { showToast } from '@/hooks/use-toast';
 import type { ExpenseFormValues } from '@/types/expense';
 
 const DEFAULT_VALUES: ExpenseFormValues = {
@@ -27,6 +28,7 @@ export default function NewExpenseScreen() {
         submitLabel="Add expense"
         isSubmitting={createExpense.isPending}
         submitError={createExpense.isError}
+        onCancel={() => router.back()}
         onSubmit={(values) => {
           createExpense.mutate(
             {
@@ -38,7 +40,12 @@ export default function NewExpenseScreen() {
               notes: values.notes ?? '',
               location: values.location ?? '',
             },
-            { onSuccess: () => router.back() }
+            {
+              onSuccess: () => {
+                showToast('Expense added');
+                router.back();
+              },
+            }
           );
         }}
       />

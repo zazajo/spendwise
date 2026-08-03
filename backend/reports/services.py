@@ -9,7 +9,7 @@ from django.core.mail import EmailMessage
 from expenses.models import Expense
 from budgets.models import Budget
 from categories.models import Category
-from groups.models import GroupExpense, Group
+from groups.models import GroupExpense, GroupExpenseSplit, Group
 from .models import Report, ScheduledReport
 
 

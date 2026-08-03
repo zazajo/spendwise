@@ -259,7 +259,7 @@ export function GroupExpenseForm({
         options={paidByOptions}
         selectedValue={paidBy}
         onSelect={(value) => {
-          if (value !== null) setValue('paid_by', value, { shouldValidate: true });
+          if (typeof value === 'number') setValue('paid_by', value, { shouldValidate: true });
           setPaidByPickerOpen(false);
         }}
         onClose={() => setPaidByPickerOpen(false)}

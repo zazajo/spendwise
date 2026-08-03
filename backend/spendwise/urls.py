@@ -23,7 +23,7 @@ from groups.views import (
 from categories.views import CategoryViewSet
 from accounts.views import (
     UserRegistrationView, UserViewSet, ProfileViewSet, UserPreferenceViewSet,
-    MobileTokenObtainPairView, LogoutView,
+    MobileTokenObtainPairView, LogoutView, LogoutAllView,
 )
 # Analytics
 from analytics.views import (
@@ -80,6 +80,7 @@ urlpatterns = [
     path('api/token/', MobileTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/logout/', LogoutView.as_view(), name='token_logout'),
+    path('api/token/logout-all/', LogoutAllView.as_view(), name='token_logout_all'),
 ]
 
 if settings.DEBUG:

@@ -244,7 +244,7 @@ export function RecurringForm({
         options={categoryOptions}
         selectedValue={categoryId}
         onSelect={(value) => {
-          if (value !== null) setValue('category', value, { shouldValidate: true });
+          if (typeof value === 'number') setValue('category', value, { shouldValidate: true });
           setCategoryPickerOpen(false);
         }}
         onClose={() => setCategoryPickerOpen(false)}
@@ -255,7 +255,7 @@ export function RecurringForm({
         options={paymentMethodOptions}
         selectedValue={paymentMethodId}
         onSelect={(value) => {
-          setValue('payment_method', value);
+          if (typeof value !== 'string') setValue('payment_method', value);
           setPaymentMethodPickerOpen(false);
         }}
         onClose={() => setPaymentMethodPickerOpen(false)}

@@ -71,13 +71,3 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
         return super().create(validated_data)
-
-
-class ExpenseSummarySerializer(serializers.Serializer):
-    """Serializer for expense summaries/analytics"""
-    total_amount = serializers.DecimalField(max_digits=10, decimal_places=2)
-    expense_count = serializers.IntegerField()
-    average_amount = serializers.DecimalField(max_digits=10, decimal_places=2)
-    category_name = serializers.CharField()
-    month = serializers.CharField(required=False)
-    year = serializers.IntegerField(required=False)

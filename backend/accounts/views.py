@@ -8,7 +8,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from django.contrib.auth.models import User
 from .models import Profile, UserPreference
 from .serializers import (
-    UserSerializer, UserRegistrationSerializer,
+    UserSerializer, UserRegistrationSerializer, UserUpdateSerializer,
     ProfileSerializer, UserPreferenceSerializer, UserDetailSerializer,
     MobileTokenObtainPairSerializer,
 )
@@ -67,6 +67,27 @@ class LogoutView(APIView):
         return Response({'message': 'Successfully logged out'})
 
 
+class LogoutAllView(APIView):
+    """
+    Blacklists every outstanding refresh token issued to the current user,
+    ending every session (not just the one that called this) - the
+    "Log out of all devices" session-management action.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
+
+        outstanding = OutstandingToken.objects.filter(user=request.user)
+        count = 0
+        for token in outstanding:
+            _, created = BlacklistedToken.objects.get_or_create(token=token)
+            if created:
+                count += 1
+
+        return Response({'message': f'Logged out of all devices ({count} sessions ended)'})
+
+
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for viewing users (read-only)"""
     serializer_class = UserSerializer
@@ -81,6 +102,15 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         """Get current user details"""
         serializer = UserDetailSerializer(request.user)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['patch'])
+    def update_me(self, request):
+        """Update the current user's first name, last name, and email."""
+        serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(UserDetailSerializer(request.user).data)
+        return Response(serializer.errors, status=400)
 
 
 class ProfileViewSet(viewsets.ModelViewSet):

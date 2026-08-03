@@ -32,6 +32,15 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
+class UserUpdateSerializer(serializers.ModelSerializer):
+    """Editable subset of User for 'complete profile management' - deliberately
+    excludes username (identity/login shouldn't change from a profile form)."""
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+
+
 class ProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     email = serializers.EmailField(source='user.email', read_only=True)

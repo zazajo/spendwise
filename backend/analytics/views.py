@@ -8,8 +8,7 @@ from spendwise.permissions import IsOwner
 from .models import SpendingPattern, AnomalyRule, FinancialHealthMetric
 from .serializers import (
     SpendingPatternSerializer, AnomalyRuleSerializer,
-    FinancialHealthMetricSerializer, AnomalyDetectionResultSerializer,
-    SpendingTrendSerializer
+    FinancialHealthMetricSerializer,
 )
 from .services import AnalyticsService
 from expenses.models import Expense
@@ -212,13 +211,18 @@ class AnalyticsViewSet(viewsets.GenericViewSet):
         year = request.query_params.get('year')
         month = request.query_params.get('month')
         
+        from datetime import datetime, timedelta
         from django.db.models import Sum, Count
         from django.utils import timezone
-        
+
         today = timezone.now().date()
         if year and month:
-            start_date = f"{year}-{month}-01"
-            end_date = f"{year}-{month}-31"
+            year, month = int(year), int(month)
+            start_date = datetime(year, month, 1).date()
+            if month == 12:
+                end_date = datetime(year + 1, 1, 1).date() - timedelta(days=1)
+            else:
+                end_date = datetime(year, month + 1, 1).date() - timedelta(days=1)
         else:
             start_date = today.replace(day=1)
             end_date = today

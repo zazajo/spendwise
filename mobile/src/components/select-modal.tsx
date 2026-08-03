@@ -4,8 +4,10 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 
+export type SelectValue = number | string | null;
+
 export interface SelectOption {
-  value: number | null;
+  value: SelectValue;
   label: string;
   color?: string;
 }
@@ -14,8 +16,8 @@ type SelectModalProps = {
   visible: boolean;
   title: string;
   options: SelectOption[];
-  selectedValue: number | null;
-  onSelect: (value: number | null) => void;
+  selectedValue: SelectValue;
+  onSelect: (value: SelectValue) => void;
   onClose: () => void;
 };
 

@@ -3,12 +3,15 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { ErrorState } from '@/components/error-state';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/hooks/use-auth';
 import { useDeleteExpense } from '@/hooks/use-delete-expense';
 import { useExpense } from '@/hooks/use-expense';
+import { useTheme } from '@/hooks/use-theme';
+import { showToast } from '@/hooks/use-toast';
 
 function capitalize(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
@@ -18,9 +21,10 @@ export default function ExpenseDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const expenseId = Number(id);
   const { user } = useAuth();
+  const theme = useTheme();
   const currency = user?.profile.currency ?? '';
 
-  const { data: expense, isLoading, isError } = useExpense(expenseId);
+  const { data: expense, isLoading, isError, refetch } = useExpense(expenseId);
   const deleteExpense = useDeleteExpense();
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -35,7 +39,7 @@ export default function ExpenseDetailScreen() {
   if (isError || !expense) {
     return (
       <ThemedView style={styles.centerContainer}>
-        <ThemedText themeColor="textSecondary">Couldn&apos;t load this expense.</ThemedText>
+        <ErrorState message="Couldn't load this expense." onRetry={refetch} />
       </ThemedView>
     );
   }
@@ -59,13 +63,15 @@ export default function ExpenseDetailScreen() {
 
         <View style={styles.actions}>
           <Pressable
-            style={styles.editButton}
+            style={[styles.editButton, { backgroundColor: theme.backgroundElement }]}
             onPress={() =>
               router.push({ pathname: '/expenses/edit/[id]', params: { id: String(expenseId) } })
             }>
             <ThemedText type="smallBold">Edit</ThemedText>
           </Pressable>
-          <Pressable style={styles.deleteButton} onPress={() => setConfirmOpen(true)}>
+          <Pressable
+            style={[styles.deleteButton, { backgroundColor: theme.danger }]}
+            onPress={() => setConfirmOpen(true)}>
             <ThemedText type="smallBold" style={styles.deleteButtonText}>
               Delete
             </ThemedText>
@@ -82,7 +88,12 @@ export default function ExpenseDetailScreen() {
         loading={deleteExpense.isPending}
         onCancel={() => setConfirmOpen(false)}
         onConfirm={() => {
-          deleteExpense.mutate(expenseId, { onSuccess: () => router.back() });
+          deleteExpense.mutate(expenseId, {
+            onSuccess: () => {
+              showToast('Expense deleted');
+              router.back();
+            },
+          });
         }}
       />
     </ThemedView>
@@ -136,17 +147,15 @@ const styles = StyleSheet.create({
   },
   editButton: {
     flex: 1,
-    borderRadius: Spacing.two,
+    borderRadius: Radius.medium,
     paddingVertical: Spacing.three,
     alignItems: 'center',
-    backgroundColor: 'rgba(128,128,128,0.12)',
   },
   deleteButton: {
     flex: 1,
-    borderRadius: Spacing.two,
+    borderRadius: Radius.medium,
     paddingVertical: Spacing.three,
     alignItems: 'center',
-    backgroundColor: '#E5484D',
   },
   deleteButtonText: {
     color: '#ffffff',

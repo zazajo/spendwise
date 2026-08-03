@@ -6,6 +6,7 @@ import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { Fab } from '@/components/fab';
+import { ReportListSkeleton } from '@/components/reports/report-list-skeleton';
 import { ScheduledReportItem } from '@/components/reports/scheduled-report-item';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
@@ -24,6 +25,9 @@ export default function ScheduledReportsScreen() {
     return (
       <ThemedView style={styles.container}>
         <Stack.Screen options={{ title: 'Scheduled Reports' }} />
+        <ScrollView contentContainerStyle={styles.content}>
+          <ReportListSkeleton />
+        </ScrollView>
       </ThemedView>
     );
   }

@@ -4,6 +4,7 @@ import { ExpenseForm } from '@/components/expense-form';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useExpense } from '@/hooks/use-expense';
+import { showToast } from '@/hooks/use-toast';
 import { useUpdateExpense } from '@/hooks/use-update-expense';
 import type { ExpenseFormValues } from '@/types/expense';
 
@@ -40,6 +41,7 @@ export default function EditExpenseScreen() {
         submitLabel="Save changes"
         isSubmitting={updateExpense.isPending}
         submitError={updateExpense.isError}
+        onCancel={() => router.back()}
         onSubmit={(values) => {
           updateExpense.mutate(
             {
@@ -52,7 +54,12 @@ export default function EditExpenseScreen() {
               notes: values.notes ?? '',
               location: values.location ?? '',
             },
-            { onSuccess: () => router.back() }
+            {
+              onSuccess: () => {
+                showToast('Expense updated');
+                router.back();
+              },
+            }
           );
         }}
       />

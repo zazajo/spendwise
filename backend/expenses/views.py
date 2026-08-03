@@ -10,7 +10,6 @@ from spendwise.permissions import IsOwner
 from .models import PaymentMethod, Expense
 from .serializers import (
     PaymentMethodSerializer, ExpenseSerializer, ExpenseCreateSerializer,
-    ExpenseSummarySerializer
 )
 
 class PaymentMethodViewSet(viewsets.ModelViewSet):

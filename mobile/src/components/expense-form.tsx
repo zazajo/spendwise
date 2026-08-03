@@ -6,9 +6,10 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SelectModal, type SelectOption } from '@/components/select-modal';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useExpenseCategories } from '@/hooks/use-expense-categories';
 import { usePaymentMethods } from '@/hooks/use-payment-methods';
+import { useTheme } from '@/hooks/use-theme';
 import { expenseFormSchema, type ExpenseFormValues, type PaymentStatus } from '@/types/expense';
 
 const PAYMENT_STATUSES: { value: PaymentStatus; label: string }[] = [
@@ -24,6 +25,7 @@ type ExpenseFormProps = {
   isSubmitting: boolean;
   submitError?: boolean;
   onSubmit: (values: ExpenseFormValues) => void;
+  onCancel: () => void;
 };
 
 export function ExpenseForm({
@@ -33,7 +35,9 @@ export function ExpenseForm({
   isSubmitting,
   submitError,
   onSubmit,
+  onCancel,
 }: ExpenseFormProps) {
+  const theme = useTheme();
   const { data: categories } = useExpenseCategories();
   const { data: paymentMethods } = usePaymentMethods();
   const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
@@ -117,14 +121,18 @@ export function ExpenseForm({
 
       <View style={styles.field}>
         <ThemedText type="smallBold">Category</ThemedText>
-        <Pressable style={styles.pickerTrigger} onPress={() => setCategoryPickerOpen(true)}>
+        <Pressable
+          style={[styles.pickerTrigger, { backgroundColor: theme.backgroundElement }]}
+          onPress={() => setCategoryPickerOpen(true)}>
           <ThemedText>{selectedCategoryLabel}</ThemedText>
         </Pressable>
       </View>
 
       <View style={styles.field}>
         <ThemedText type="smallBold">Payment method</ThemedText>
-        <Pressable style={styles.pickerTrigger} onPress={() => setPaymentMethodPickerOpen(true)}>
+        <Pressable
+          style={[styles.pickerTrigger, { backgroundColor: theme.backgroundElement }]}
+          onPress={() => setPaymentMethodPickerOpen(true)}>
           <ThemedText>{selectedPaymentMethodLabel}</ThemedText>
         </Pressable>
       </View>
@@ -141,7 +149,11 @@ export function ExpenseForm({
                   <Pressable
                     key={status.value}
                     onPress={() => onChange(status.value)}
-                    style={[styles.chip, value === status.value && styles.chipSelected]}>
+                    style={[
+                      styles.chip,
+                      { backgroundColor: theme.backgroundElement },
+                      value === status.value && { backgroundColor: theme.primary },
+                    ]}>
                     <ThemedText
                       type="small"
                       style={value === status.value ? styles.chipTextSelected : undefined}>
@@ -185,7 +197,7 @@ export function ExpenseForm({
       />
 
       {submitError ? (
-        <ThemedText type="small" style={styles.formError}>
+        <ThemedText type="small" themeColor="danger">
           Something went wrong. Please try again.
         </ThemedText>
       ) : null}
@@ -193,10 +205,18 @@ export function ExpenseForm({
       <Pressable
         disabled={isSubmitting}
         onPress={handleSubmit(onSubmit)}
-        style={({ pressed }) => [styles.submitButton, pressed && styles.pressed]}>
+        style={({ pressed }) => [
+          styles.submitButton,
+          { backgroundColor: theme.primary },
+          pressed && styles.pressed,
+        ]}>
         <ThemedText type="smallBold" style={styles.submitButtonText}>
           {isSubmitting ? 'Saving…' : submitLabel}
         </ThemedText>
+      </Pressable>
+
+      <Pressable disabled={isSubmitting} onPress={onCancel} style={styles.cancelButton}>
+        <ThemedText type="smallBold">Cancel</ThemedText>
       </Pressable>
 
       <SelectModal
@@ -205,7 +225,7 @@ export function ExpenseForm({
         options={categoryOptions}
         selectedValue={categoryId}
         onSelect={(value) => {
-          setValue('category', value);
+          if (typeof value !== 'string') setValue('category', value);
           setCategoryPickerOpen(false);
         }}
         onClose={() => setCategoryPickerOpen(false)}
@@ -216,7 +236,7 @@ export function ExpenseForm({
         options={paymentMethodOptions}
         selectedValue={paymentMethodId}
         onSelect={(value) => {
-          setValue('payment_method', value);
+          if (typeof value !== 'string') setValue('payment_method', value);
           setPaymentMethodPickerOpen(false);
         }}
         onClose={() => setPaymentMethodPickerOpen(false)}
@@ -234,32 +254,25 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   pickerTrigger: {
-    borderRadius: Spacing.two,
-    borderWidth: 1,
-    borderColor: 'transparent',
+    borderRadius: Radius.medium,
     paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    backgroundColor: 'rgba(128,128,128,0.12)',
+    paddingVertical: Spacing.three,
   },
   chipRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: Spacing.two,
   },
   chip: {
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.one,
-    borderRadius: Spacing.five,
-    backgroundColor: 'rgba(128,128,128,0.12)',
-  },
-  chipSelected: {
-    backgroundColor: '#3c87f7',
+    borderRadius: Radius.pill,
   },
   chipTextSelected: {
     color: '#ffffff',
   },
   submitButton: {
-    backgroundColor: '#3c87f7',
-    borderRadius: Spacing.two,
+    borderRadius: Radius.medium,
     paddingVertical: Spacing.three,
     alignItems: 'center',
     marginTop: Spacing.two,
@@ -267,10 +280,12 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: '#ffffff',
   },
-  pressed: {
-    opacity: 0.8,
+  cancelButton: {
+    borderRadius: Radius.medium,
+    paddingVertical: Spacing.three,
+    alignItems: 'center',
   },
-  formError: {
-    color: '#E5484D',
+  pressed: {
+    opacity: 0.85,
   },
 });

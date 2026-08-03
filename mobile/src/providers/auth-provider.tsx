@@ -14,6 +14,9 @@ interface AuthContextValue {
   login: (payload: LoginPayload) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<void>;
   logout: () => Promise<void>;
+  // Re-fetches /users/me/ and updates local state - lets Settings screens
+  // reflect a saved profile/preference edit immediately without a full re-login.
+  refreshUser: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -71,6 +74,10 @@ export function AuthProvider({ children }: PropsWithChildren) {
         const currentUser = await authService.fetchCurrentUser();
         setUser(currentUser);
         setStatus('authenticated');
+      },
+      async refreshUser() {
+        const currentUser = await authService.fetchCurrentUser();
+        setUser(currentUser);
       },
       async logout() {
         const tokens = await getStoredTokens();

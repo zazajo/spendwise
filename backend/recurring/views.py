@@ -216,12 +216,30 @@ class RecurringExpenseViewSet(CsrfExemptViewSet):
             while current_date <= end:
                 if current_date >= start:
                     try:
-                        # Clone the recurring to avoid modifying the original
-                        from copy import deepcopy
-                        temp_recurring = deepcopy(recurring)
-                        temp_recurring.next_occurrence = current_date
-                        expense = temp_recurring.generate_expense()
-                        
+                        # Create the expense directly instead of going through
+                        # generate_expense(), which also calls self.save() on the
+                        # recurring template - a deepcopy() "clone" still shares the
+                        # original's primary key, so that save() would silently
+                        # overwrite the real recurring row's next_occurrence/
+                        # last_occurrence/is_active on every iteration of this loop.
+                        # Backfilling a date range shouldn't touch the live schedule.
+                        from expenses.models import Expense
+                        expense = Expense.objects.create(
+                            user=recurring.user,
+                            category=recurring.category,
+                            amount=recurring.amount,
+                            description=recurring.description,
+                            date=current_date,
+                            payment_method=recurring.payment_method,
+                            notes=f"Auto-generated from recurring expense: {recurring.description}"
+                        )
+                        RecurringExpenseLog.objects.create(
+                            recurring_expense=recurring,
+                            expense=expense,
+                            scheduled_date=current_date,
+                            status='created'
+                        )
+
                         from expenses.serializers import ExpenseSerializer
                         generated.append(ExpenseSerializer(expense, context={'request': request}).data)
                     except Exception as e:

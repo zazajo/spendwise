@@ -28,12 +28,17 @@ class ReportViewSet(viewsets.ModelViewSet):
     def generate(self, request):
         """Generate a new report"""
         report_type = request.data.get('report_type')
-        name = request.data.get('name', f"{report_type.replace('_', ' ').title()} Report")
+        if not report_type:
+            return Response(
+                {'error': 'report_type is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        name = request.data.get('name') or f"{report_type.replace('_', ' ').title()} Report"
         parameters = request.data.get('parameters', {})
         format_type = request.data.get('format', 'json')
-        
+
         service = ReportService(request.user)
-        
+
         if report_type == 'monthly_summary':
             year = parameters.get('year')
             month = parameters.get('month')

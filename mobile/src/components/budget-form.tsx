@@ -190,7 +190,7 @@ export function BudgetForm({
         options={categoryOptions}
         selectedValue={categoryId}
         onSelect={(value) => {
-          if (value !== null) setValue('category', value, { shouldValidate: true });
+          if (typeof value === 'number') setValue('category', value, { shouldValidate: true });
           setCategoryPickerOpen(false);
         }}
         onClose={() => setCategoryPickerOpen(false)}

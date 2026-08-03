@@ -14,9 +14,11 @@ import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useAuth } from '@/hooks/use-auth';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { useGroups } from '@/hooks/use-groups';
+import { useTheme } from '@/hooks/use-theme';
 
 export default function GroupsOverviewScreen() {
   const { user } = useAuth();
+  const theme = useTheme();
   const currency = user?.profile.currency ?? '';
   const [searchInput, setSearchInput] = useState('');
   const search = useDebouncedValue(searchInput, 300);
@@ -31,7 +33,9 @@ export default function GroupsOverviewScreen() {
         <View style={styles.searchField}>
           <TextField placeholder="Search groups" value={searchInput} onChangeText={setSearchInput} />
         </View>
-        <Pressable style={styles.joinButton} onPress={() => router.push('/groups/join')}>
+        <Pressable
+          style={[styles.joinButton, { backgroundColor: theme.backgroundElement }]}
+          onPress={() => router.push('/groups/join')}>
           <ThemedText type="smallBold">Join</ThemedText>
         </Pressable>
       </View>
@@ -98,7 +102,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.three,
     borderRadius: Spacing.two,
-    backgroundColor: 'rgba(128,128,128,0.12)',
   },
   content: {
     paddingHorizontal: Spacing.three,

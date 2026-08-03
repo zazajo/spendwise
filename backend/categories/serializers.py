@@ -24,10 +24,3 @@ class CategorySerializer(serializers.ModelSerializer):
             if queryset.exists():
                 raise serializers.ValidationError("You already have a category with this name")
         return value
-
-
-class CategorySummarySerializer(serializers.ModelSerializer):
-    """Lightweight serializer for list views"""
-    class Meta:
-        model = Category
-        fields = ['id', 'name', 'color', 'icon', 'category_type']

@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
 import { InviteCodeCard } from '@/components/groups/invite-code-card';
 import { MemberListItem } from '@/components/groups/member-list-item';
@@ -78,7 +78,9 @@ export default function GroupMembersScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={group.isRefetching} onRefresh={group.refetch} />}>
         <InviteCodeCard
           inviteCode={data.invite_code}
           isAdmin={data.is_admin}

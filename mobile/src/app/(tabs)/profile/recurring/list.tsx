@@ -343,7 +343,7 @@ export default function RecurringListScreen() {
         options={categoryOptions}
         selectedValue={draftCategory}
         onSelect={(value) => {
-          setDraftCategory(value);
+          if (typeof value !== 'string') setDraftCategory(value);
           setCategoryPickerOpen(false);
         }}
         onClose={() => setCategoryPickerOpen(false)}

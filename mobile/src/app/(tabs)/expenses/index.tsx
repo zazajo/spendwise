@@ -1,14 +1,17 @@
-import { Ionicons } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { FlatList, Modal, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 
+import { EmptyState } from '@/components/empty-state';
+import { ErrorState } from '@/components/error-state';
 import { ExpenseListItem } from '@/components/expense-list-item';
+import { ExpenseListSkeleton } from '@/components/expense-list-skeleton';
+import { Fab } from '@/components/fab';
 import { SelectModal, type SelectOption } from '@/components/select-modal';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/hooks/use-auth';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { useExpenseCategories } from '@/hooks/use-expense-categories';
@@ -64,6 +67,7 @@ export default function ExpensesListScreen() {
   ];
 
   const activeFilterCount = (category !== null ? 1 : 0) + (startDate || endDate ? 1 : 0);
+  const hasActiveFilters = activeFilterCount > 0 || !!search;
 
   function openFilters() {
     setDraftCategory(category);
@@ -87,31 +91,27 @@ export default function ExpensesListScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <Stack.Screen
-        options={{
-          headerRight: () => (
-            <Pressable onPress={() => router.push('/expenses/new')} hitSlop={8}>
-              <Ionicons name="add" size={22} color={theme.text} />
-            </Pressable>
-          ),
-        }}
-      />
+      <Stack.Screen options={{ title: 'Expenses' }} />
 
       <View style={styles.toolbar}>
         <View style={styles.searchField}>
           <TextField placeholder="Search expenses" value={searchInput} onChangeText={setSearchInput} />
         </View>
-        <Pressable style={styles.filterButton} onPress={openFilters}>
+        <Pressable
+          style={[styles.filterButton, { backgroundColor: theme.backgroundElement }]}
+          onPress={openFilters}>
           <ThemedText type="smallBold">
             Filters{activeFilterCount ? ` (${activeFilterCount})` : ''}
           </ThemedText>
         </Pressable>
       </View>
 
-      {isError ? (
-        <ThemedText style={styles.centerMessage} themeColor="textSecondary">
-          Couldn&apos;t load expenses.
-        </ThemedText>
+      {isLoading ? (
+        <View style={styles.listContent}>
+          <ExpenseListSkeleton />
+        </View>
+      ) : isError ? (
+        <ErrorState message="Couldn't load expenses." onRetry={refetch} />
       ) : (
         <FlatList
           data={expenses}
@@ -133,14 +133,22 @@ export default function ExpensesListScreen() {
           )}
           ItemSeparatorComponent={() => <View style={{ height: Spacing.two }} />}
           ListEmptyComponent={
-            !isLoading ? (
-              <ThemedText style={styles.centerMessage} themeColor="textSecondary">
-                No expenses found.
-              </ThemedText>
-            ) : null
+            <EmptyState
+              icon="receipt-outline"
+              title={hasActiveFilters ? 'No expenses found' : 'No expenses yet'}
+              message={
+                hasActiveFilters
+                  ? 'Try adjusting your search or filters.'
+                  : 'Start tracking your spending by adding your first expense.'
+              }
+              actionLabel={hasActiveFilters ? undefined : 'Add expense'}
+              onAction={hasActiveFilters ? undefined : () => router.push('/expenses/new')}
+            />
           }
         />
       )}
+
+      <Fab onPress={() => router.push('/expenses/new')} />
 
       <Modal
         visible={filtersOpen}
@@ -155,7 +163,9 @@ export default function ExpensesListScreen() {
 
             <View style={styles.field}>
               <ThemedText type="smallBold">Category</ThemedText>
-              <Pressable style={styles.pickerTrigger} onPress={() => setCategoryPickerOpen(true)}>
+              <Pressable
+                style={[styles.pickerTrigger, { backgroundColor: theme.backgroundElement }]}
+                onPress={() => setCategoryPickerOpen(true)}>
                 <ThemedText>
                   {categoryOptions.find((o) => o.value === draftCategory)?.label ?? 'All categories'}
                 </ThemedText>
@@ -179,7 +189,9 @@ export default function ExpensesListScreen() {
               <Pressable style={styles.filterSecondaryButton} onPress={resetFilters}>
                 <ThemedText type="smallBold">Reset</ThemedText>
               </Pressable>
-              <Pressable style={styles.filterPrimaryButton} onPress={applyFilters}>
+              <Pressable
+                style={[styles.filterPrimaryButton, { backgroundColor: theme.primary }]}
+                onPress={applyFilters}>
                 <ThemedText type="smallBold" style={styles.filterPrimaryButtonText}>
                   Apply
                 </ThemedText>
@@ -195,7 +207,7 @@ export default function ExpensesListScreen() {
         options={categoryOptions}
         selectedValue={draftCategory}
         onSelect={(value) => {
-          setDraftCategory(value);
+          if (typeof value !== 'string') setDraftCategory(value);
           setCategoryPickerOpen(false);
         }}
         onClose={() => setCategoryPickerOpen(false)}
@@ -213,15 +225,17 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: Spacing.two,
     padding: Spacing.three,
+    maxWidth: MaxContentWidth,
+    width: '100%',
+    alignSelf: 'center',
   },
   searchField: {
     flex: 1,
   },
   filterButton: {
-    borderRadius: Spacing.two,
+    borderRadius: Radius.medium,
     paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    backgroundColor: 'rgba(128,128,128,0.12)',
+    paddingVertical: Spacing.three,
   },
   listContent: {
     paddingHorizontal: Spacing.three,
@@ -230,18 +244,13 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
   },
-  centerMessage: {
-    textAlign: 'center',
-    marginTop: Spacing.six,
-  },
   field: {
     gap: Spacing.one,
   },
   pickerTrigger: {
-    borderRadius: Spacing.two,
+    borderRadius: Radius.medium,
     paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    backgroundColor: 'rgba(128,128,128,0.12)',
+    paddingVertical: Spacing.three,
   },
   filterBackdrop: {
     flex: 1,
@@ -266,13 +275,12 @@ const styles = StyleSheet.create({
   filterSecondaryButton: {
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
-    borderRadius: Spacing.two,
+    borderRadius: Radius.medium,
   },
   filterPrimaryButton: {
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
-    borderRadius: Spacing.two,
-    backgroundColor: '#3c87f7',
+    borderRadius: Radius.medium,
   },
   filterPrimaryButtonText: {
     color: '#ffffff',

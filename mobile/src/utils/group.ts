@@ -1,13 +1,10 @@
 import type { GroupMembership, MemberBalance } from '@/types/group';
 
-// The backend's /groups/{id}/balance/ action computes suggested settlements by mutating
-// each creditor's `balance` value in place as it "pays down" their balance against debtors
-// (see GroupViewSet._calculate_settlements) - that mutation leaks into the same dicts the
-// response returns, so a creditor's `balance` field often reads as partially or fully zeroed
-// even though they're genuinely still owed money (paid/owes themselves are unaffected).
-// Always derive the true net balance from paid - owes instead of trusting `balance` directly.
-export function computeNetBalance(member: Pick<MemberBalance, 'paid' | 'owes'>): number {
-  return Number(member.paid) - Number(member.owes);
+// `balance` is the server's authoritative net (paid - owes, adjusted for recorded
+// settlements) - use it rather than recomputing from paid/owes, which would ignore
+// settlement history.
+export function computeNetBalance(member: Pick<MemberBalance, 'balance'>): number {
+  return Number(member.balance);
 }
 
 // Nickname (if the member set one for this group) wins, then full name, then username.

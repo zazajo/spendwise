@@ -6,6 +6,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Card } from '@/components/card';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EmptyState } from '@/components/empty-state';
+import { ErrorState } from '@/components/error-state';
 import { ExpenseListItem } from '@/components/expense-list-item';
 import { SectionHeader } from '@/components/section-header';
 import { ThemedText } from '@/components/themed-text';
@@ -28,7 +29,7 @@ export default function CategoryDetailScreen() {
   const currency = user?.profile.currency ?? '';
   const theme = useTheme();
 
-  const { data: category, isLoading, isError } = useCategory(categoryId);
+  const { data: category, isLoading, isError, refetch } = useCategory(categoryId);
   const { data: relatedExpenses = [] } = useCategoryExpenses(categoryId);
   const archiveCategory = useArchiveCategory();
   const restoreCategory = useRestoreCategory();
@@ -45,7 +46,7 @@ export default function CategoryDetailScreen() {
   if (isError || !category) {
     return (
       <ThemedView style={styles.centerContainer}>
-        <ThemedText themeColor="textSecondary">Couldn&apos;t load this category.</ThemedText>
+        <ErrorState message="Couldn't load this category." onRetry={refetch} />
       </ThemedView>
     );
   }

@@ -112,53 +112,50 @@ class GroupExpenseCreateSerializer(serializers.ModelSerializer):
     
     def validate(self, data):
         """Validate that splits sum to total amount"""
-        split_type = data.get('split_type')
-        amount = data.get('amount')
+        split_type = data.get('split_type', getattr(self.instance, 'split_type', None))
+        amount = data.get('amount', getattr(self.instance, 'amount', None))
         splits = data.get('splits', [])
-        group = data.get('group')
-        
+        group = data.get('group', getattr(self.instance, 'group', None))
+        paid_by = data.get('paid_by', getattr(self.instance, 'paid_by', None))
+
         # Verify the paid_by user is a member of the group
-        if not group.members.filter(id=data['paid_by'].id).exists():
+        if group is not None and paid_by is not None and not group.members.filter(id=paid_by.id).exists():
             raise serializers.ValidationError(
                 {"paid_by": "User is not a member of this group"}
             )
-        
-        if split_type == 'equal':
-            # Will be handled in create - no validation needed here
-            pass
-        elif split_type == 'custom':
-            if not splits:
-                raise serializers.ValidationError(
-                    {"splits": "Custom splits require split details"}
-                )
-            total_split = sum(split['amount'] for split in splits)
-            if abs(total_split - amount) > 0.01:  # Allow small rounding
-                raise serializers.ValidationError(
-                    f"Splits sum ({total_split}) does not equal expense amount ({amount})"
-                )
-        
+
+        # Only validate the split configuration when the client is actually
+        # sending one (always true on create; on update, only when the request
+        # resends split_type - see the matching `recompute_splits` check in update()).
+        if 'split_type' in data:
+            if split_type == 'equal':
+                # Will be handled in create/update - no validation needed here
+                pass
+            elif split_type in ('custom', 'percentage', 'shares'):
+                if not splits:
+                    raise serializers.ValidationError(
+                        {"splits": f"{split_type.capitalize()} splits require split details"}
+                    )
+                total_split = sum(split['amount'] for split in splits)
+                if amount is not None and abs(total_split - amount) > 0.01:  # Allow small rounding
+                    raise serializers.ValidationError(
+                        f"Splits sum ({total_split}) does not equal expense amount ({amount})"
+                    )
+
         return data
-    
-    def create(self, validated_data):
-        splits_data = validated_data.pop('splits', [])
-        group = validated_data['group']
-        amount = validated_data['amount']
-        paid_by = validated_data['paid_by']
-        
-        # Create the group expense
-        group_expense = GroupExpense.objects.create(**validated_data)
-        
-        if validated_data.get('split_type') == 'equal':
+
+    def _create_splits(self, group_expense, split_type, amount, group, splits_data):
+        if split_type == 'equal':
             # Calculate equal splits for ALL group members
             members = group.members.all()
             member_count = members.count()
-            
+
             if member_count == 0:
                 raise serializers.ValidationError("Group has no members")
-            
+
             # Calculate equal split amount
             split_amount = amount / member_count
-            
+
             # Create a split for each group member
             for member in members:
                 GroupExpenseSplit.objects.create(
@@ -173,19 +170,35 @@ class GroupExpenseCreateSerializer(serializers.ModelSerializer):
                     group_expense=group_expense,
                     **split_data
                 )
-        
+
+    def create(self, validated_data):
+        splits_data = validated_data.pop('splits', [])
+        group = validated_data['group']
+        amount = validated_data['amount']
+
+        # Create the group expense
+        group_expense = GroupExpense.objects.create(**validated_data)
+        self._create_splits(group_expense, validated_data.get('split_type'), amount, group, splits_data)
+
         return group_expense
 
+    def update(self, instance, validated_data):
+        splits_data = validated_data.pop('splits', None)
+        # Only recompute splits when the client explicitly sent a split configuration
+        # (the mobile edit form always resubmits split_type + splits together).
+        recompute_splits = 'split_type' in validated_data
 
-class GroupBalanceSerializer(serializers.Serializer):
-    """Serializer for group balance calculations"""
-    user_id = serializers.IntegerField()
-    username = serializers.CharField()
-    nickname = serializers.CharField(required=False)
-    paid = serializers.DecimalField(max_digits=10, decimal_places=2)
-    owes = serializers.DecimalField(max_digits=10, decimal_places=2)
-    balance = serializers.DecimalField(max_digits=10, decimal_places=2)
-    settlements = serializers.ListField(child=serializers.DictField(), required=False)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if recompute_splits:
+            instance.splits.all().delete()
+            self._create_splits(
+                instance, instance.split_type, instance.amount, instance.group, splits_data or []
+            )
+
+        return instance
 
 
 class GroupSettlementSerializer(serializers.ModelSerializer):

@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Card } from '@/components/card';
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { ErrorState } from '@/components/error-state';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
@@ -30,7 +31,7 @@ export default function GroupExpenseDetailScreen() {
   const currency = user?.profile.currency ?? '';
   const theme = useTheme();
 
-  const { data: expense, isLoading, isError } = useGroupExpense(expenseIdNum);
+  const { data: expense, isLoading, isError, refetch } = useGroupExpense(expenseIdNum);
   const settleSplit = useSettleSplit(groupId);
   const deleteExpense = useDeleteGroupExpense(groupId);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
@@ -46,7 +47,7 @@ export default function GroupExpenseDetailScreen() {
   if (isError || !expense) {
     return (
       <ThemedView style={styles.centerContainer}>
-        <ThemedText themeColor="textSecondary">Couldn&apos;t load this expense.</ThemedText>
+        <ErrorState message="Couldn't load this expense." onRetry={refetch} />
       </ThemedView>
     );
   }
