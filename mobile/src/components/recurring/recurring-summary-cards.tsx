@@ -3,33 +3,47 @@ import { StyleSheet, View } from 'react-native';
 import { StatTile } from '@/components/analytics/stat-tile';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import type { RecurringDashboardResponse } from '@/types/recurring';
 import { formatCurrency } from '@/utils/format';
 
 type RecurringSummaryCardsProps = {
-  summary: RecurringDashboardResponse['summary'];
+  activeCount: number;
+  pausedCount: number;
+  completedCount: number;
+  estimatedMonthlyTotal: number;
+  overdueCount: number;
   currency: string;
 };
 
-export function RecurringSummaryCards({ summary, currency }: RecurringSummaryCardsProps) {
+// Counts are derived client-side from getRecurringLifecycleStatus() (matching the
+// Active/Paused/Completed sections below) rather than the backend summary's raw
+// is_active split, so a naturally-ended (end_date passed) item shows as Completed
+// here too instead of being lumped into "Paused".
+export function RecurringSummaryCards({
+  activeCount,
+  pausedCount,
+  completedCount,
+  estimatedMonthlyTotal,
+  overdueCount,
+  currency,
+}: RecurringSummaryCardsProps) {
   const theme = useTheme();
 
   return (
     <View style={styles.grid}>
       <View style={styles.row}>
-        <StatTile label="Active" value={String(summary.total_active)} />
-        <StatTile label="Paused" value={String(summary.total_inactive)} />
+        <StatTile label="Active" value={String(activeCount)} />
+        <StatTile label="Paused" value={String(pausedCount)} />
       </View>
       <View style={styles.row}>
-        <StatTile
-          label="Est. monthly total"
-          value={formatCurrency(summary.estimated_monthly_total, currency)}
-        />
+        <StatTile label="Completed" value={String(completedCount)} />
         <StatTile
           label="Overdue"
-          value={String(summary.overdue_count)}
-          valueColor={summary.overdue_count > 0 ? theme.danger : undefined}
+          value={String(overdueCount)}
+          valueColor={overdueCount > 0 ? theme.danger : undefined}
         />
+      </View>
+      <View style={styles.row}>
+        <StatTile label="Est. monthly total" value={formatCurrency(estimatedMonthlyTotal, currency)} />
       </View>
     </View>
   );

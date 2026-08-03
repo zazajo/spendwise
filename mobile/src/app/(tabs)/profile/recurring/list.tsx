@@ -1,7 +1,9 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { FlatList, Modal, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { RecurringCard } from '@/components/recurring/recurring-card';
@@ -10,12 +12,14 @@ import { SelectModal, type SelectOption } from '@/components/select-modal';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { BottomTabInset, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/hooks/use-auth';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { useExpenseCategories } from '@/hooks/use-expense-categories';
+import { useRecurringBatchAction } from '@/hooks/use-recurring-batch-action';
 import { useRecurringExpenses } from '@/hooks/use-recurring-expenses';
 import { useTheme } from '@/hooks/use-theme';
+import { showToast } from '@/hooks/use-toast';
 import {
   RECURRING_FREQUENCIES,
   getRecurringLifecycleStatus,
@@ -65,6 +69,11 @@ export default function RecurringListScreen() {
   const [draftStatus, setDraftStatus] = useState<RecurringLifecycleStatus | null>(status);
   const [draftFrequency, setDraftFrequency] = useState<RecurringFrequency | null>(frequency);
   const [draftCategory, setDraftCategory] = useState<number | null>(category);
+
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [confirmBatchDelete, setConfirmBatchDelete] = useState(false);
+  const batchAction = useRecurringBatchAction();
 
   const { data: categories } = useExpenseCategories();
 
@@ -118,39 +127,87 @@ export default function RecurringListScreen() {
     setDraftCategory(null);
   }
 
+  function toggleSelected(id: number) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function exitSelectionMode() {
+    setSelectionMode(false);
+    setSelectedIds(new Set());
+  }
+
+  function runBatchAction(action: 'activate' | 'deactivate' | 'delete') {
+    batchAction.mutate(
+      { recurring_expense_ids: Array.from(selectedIds), action },
+      {
+        onSuccess: () => {
+          showToast(
+            action === 'activate' ? 'Activated' : action === 'deactivate' ? 'Deactivated' : 'Deleted'
+          );
+          exitSelectionMode();
+          setConfirmBatchDelete(false);
+        },
+      }
+    );
+  }
+
   return (
     <ThemedView style={styles.container}>
       <Stack.Screen options={{ title: 'Recurring Expenses' }} />
 
-      <View style={styles.toolbar}>
-        <View style={styles.searchField}>
-          <TextField placeholder="Search recurring expenses" value={searchInput} onChangeText={setSearchInput} />
-        </View>
-        <Pressable
-          style={[styles.toolbarButton, { backgroundColor: theme.backgroundElement }]}
-          onPress={openFilters}>
-          <ThemedText type="smallBold">
-            Filters{activeFilterCount ? ` (${activeFilterCount})` : ''}
-          </ThemedText>
-        </Pressable>
-      </View>
-
-      <View style={styles.sortRow}>
-        {SORT_OPTIONS.map((option) => (
-          <Pressable
-            key={option.value}
-            onPress={() => setSort(option.value)}
-            style={[
-              styles.sortChip,
-              { backgroundColor: theme.backgroundElement },
-              sort === option.value && { backgroundColor: theme.primary },
-            ]}>
-            <ThemedText type="small" style={sort === option.value ? styles.sortChipTextSelected : undefined}>
-              {option.label}
+      {selectionMode ? (
+        <View style={styles.selectionBar}>
+          <ThemedText type="smallBold">{selectedIds.size} selected</ThemedText>
+          <Pressable onPress={exitSelectionMode} hitSlop={8}>
+            <ThemedText type="smallBold" themeColor="danger">
+              Cancel
             </ThemedText>
           </Pressable>
-        ))}
-      </View>
+        </View>
+      ) : (
+        <>
+          <View style={styles.toolbar}>
+            <View style={styles.searchField}>
+              <TextField
+                placeholder="Search recurring expenses"
+                value={searchInput}
+                onChangeText={setSearchInput}
+              />
+            </View>
+            <Pressable
+              style={[styles.toolbarButton, { backgroundColor: theme.backgroundElement }]}
+              onPress={openFilters}>
+              <ThemedText type="smallBold">
+                Filters{activeFilterCount ? ` (${activeFilterCount})` : ''}
+              </ThemedText>
+            </Pressable>
+          </View>
+
+          <View style={styles.sortRow}>
+            {SORT_OPTIONS.map((option) => (
+              <Pressable
+                key={option.value}
+                onPress={() => setSort(option.value)}
+                style={[
+                  styles.sortChip,
+                  { backgroundColor: theme.backgroundElement },
+                  sort === option.value && { backgroundColor: theme.primary },
+                ]}>
+                <ThemedText
+                  type="small"
+                  style={sort === option.value ? styles.sortChipTextSelected : undefined}>
+                  {option.label}
+                </ThemedText>
+              </Pressable>
+            ))}
+          </View>
+        </>
+      )}
 
       {isLoading ? (
         <View style={styles.listContent}>
@@ -170,9 +227,19 @@ export default function RecurringListScreen() {
               currency={currency}
               categoryColor={categoryLookup.get(item.category)?.color}
               categoryIcon={categoryLookup.get(item.category)?.icon}
-              onPress={() =>
-                router.push({ pathname: '/profile/recurring/[id]', params: { id: String(item.id) } })
-              }
+              selectionMode={selectionMode}
+              selected={selectedIds.has(item.id)}
+              onPress={() => {
+                if (selectionMode) {
+                  toggleSelected(item.id);
+                } else {
+                  router.push({ pathname: '/profile/recurring/[id]', params: { id: String(item.id) } });
+                }
+              }}
+              onLongPress={() => {
+                if (!selectionMode) setSelectionMode(true);
+                toggleSelected(item.id);
+              }}
             />
           )}
           ItemSeparatorComponent={() => <View style={{ height: Spacing.two }} />}
@@ -281,6 +348,49 @@ export default function RecurringListScreen() {
         }}
         onClose={() => setCategoryPickerOpen(false)}
       />
+
+      {selectionMode && selectedIds.size > 0 ? (
+        <View style={[styles.batchBar, { backgroundColor: theme.backgroundElement }]}>
+          <Pressable
+            disabled={batchAction.isPending}
+            style={styles.batchButton}
+            onPress={() => runBatchAction('activate')}>
+            <Ionicons name="play-outline" size={18} color={theme.success} />
+            <ThemedText type="small" style={{ color: theme.success }}>
+              Activate
+            </ThemedText>
+          </Pressable>
+          <Pressable
+            disabled={batchAction.isPending}
+            style={styles.batchButton}
+            onPress={() => runBatchAction('deactivate')}>
+            <Ionicons name="pause-outline" size={18} color={theme.warning} />
+            <ThemedText type="small" style={{ color: theme.warning }}>
+              Deactivate
+            </ThemedText>
+          </Pressable>
+          <Pressable
+            disabled={batchAction.isPending}
+            style={styles.batchButton}
+            onPress={() => setConfirmBatchDelete(true)}>
+            <Ionicons name="trash-outline" size={18} color={theme.danger} />
+            <ThemedText type="small" style={{ color: theme.danger }}>
+              Delete
+            </ThemedText>
+          </Pressable>
+        </View>
+      ) : null}
+
+      <ConfirmDialog
+        visible={confirmBatchDelete}
+        title="Delete recurring expenses"
+        message={`This can't be undone. Delete ${selectedIds.size} recurring expense${selectedIds.size === 1 ? '' : 's'}?`}
+        confirmLabel="Delete"
+        destructive
+        loading={batchAction.isPending}
+        onCancel={() => setConfirmBatchDelete(false)}
+        onConfirm={() => runBatchAction('delete')}
+      />
     </ThemedView>
   );
 }
@@ -305,6 +415,35 @@ const styles = StyleSheet.create({
     borderRadius: Radius.medium,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.three,
+  },
+  selectionBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: Spacing.three,
+    maxWidth: MaxContentWidth,
+    width: '100%',
+    alignSelf: 'center',
+  },
+  batchBar: {
+    position: 'absolute',
+    left: Spacing.three,
+    right: Spacing.three,
+    bottom: BottomTabInset + Spacing.three,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    borderRadius: Radius.large,
+    paddingVertical: Spacing.three,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  batchButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.half,
   },
   sortRow: {
     flexDirection: 'row',

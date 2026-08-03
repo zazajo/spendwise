@@ -18,6 +18,9 @@ type RecurringCardProps = {
   categoryColor?: string;
   categoryIcon?: string;
   onPress: () => void;
+  onLongPress?: () => void;
+  selectionMode?: boolean;
+  selected?: boolean;
 };
 
 export function RecurringCard({
@@ -26,6 +29,9 @@ export function RecurringCard({
   categoryColor = DEFAULT_CATEGORY_COLOR,
   categoryIcon = DEFAULT_CATEGORY_ICON,
   onPress,
+  onLongPress,
+  selectionMode = false,
+  selected = false,
 }: RecurringCardProps) {
   const theme = useTheme();
   const status = getRecurringLifecycleStatus(recurring);
@@ -34,18 +40,31 @@ export function RecurringCard({
     urgency === 'overdue' ? theme.danger : urgency === 'due-soon' ? theme.warning : theme.textSecondary;
 
   return (
-    <Pressable onPress={onPress}>
+    <Pressable onPress={onPress} onLongPress={onLongPress}>
       {({ pressed }) => (
-        <Card style={pressed ? [styles.card, styles.pressed] : styles.card}>
+        <Card
+          style={[
+            styles.card,
+            pressed && styles.pressed,
+            selected && { borderColor: theme.primary, borderWidth: 2 },
+          ]}>
           <View style={styles.headerRow}>
             <View style={styles.identity}>
-              <View style={[styles.iconCircle, { backgroundColor: categoryColor }]}>
+              {selectionMode ? (
                 <Ionicons
-                  name={categoryIcon as keyof typeof Ionicons.glyphMap}
-                  size={18}
-                  color="#ffffff"
+                  name={selected ? 'checkmark-circle' : 'ellipse-outline'}
+                  size={22}
+                  color={selected ? theme.primary : theme.textSecondary}
                 />
-              </View>
+              ) : (
+                <View style={[styles.iconCircle, { backgroundColor: categoryColor }]}>
+                  <Ionicons
+                    name={categoryIcon as keyof typeof Ionicons.glyphMap}
+                    size={18}
+                    color="#ffffff"
+                  />
+                </View>
+              )}
               <View style={styles.identityText}>
                 <ThemedText type="smallBold" numberOfLines={1}>
                   {recurring.description}

@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
 import { ExpenseListItem } from '@/components/expense-list-item';
@@ -8,6 +8,7 @@ import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { Fab } from '@/components/fab';
 import { RecurringCard } from '@/components/recurring/recurring-card';
+import { RecurringGenerateRangeModal } from '@/components/recurring/recurring-generate-range-modal';
 import { RecurringListSkeleton } from '@/components/recurring/recurring-list-skeleton';
 import { RecurringSummaryCards } from '@/components/recurring/recurring-summary-cards';
 import { RecurringUpcomingItem } from '@/components/recurring/recurring-upcoming-item';
@@ -18,6 +19,7 @@ import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useAuth } from '@/hooks/use-auth';
 import { useExpenseCategories } from '@/hooks/use-expense-categories';
 import { useGenerateDueRecurring } from '@/hooks/use-generate-due-recurring';
+import { useGenerateRangeRecurring } from '@/hooks/use-generate-range-recurring';
 import { useRecurringDashboard } from '@/hooks/use-recurring-dashboard';
 import { useRecurringExpenses } from '@/hooks/use-recurring-expenses';
 import { useRecurringLogs } from '@/hooks/use-recurring-logs';
@@ -28,6 +30,7 @@ import {
   type RecurringExpense,
   type RecurringLifecycleStatus,
 } from '@/types/recurring';
+import { toISODateString } from '@/utils/format';
 
 const SECTION_META: Record<RecurringLifecycleStatus, { title: string; icon: keyof typeof Ionicons.glyphMap }> = {
   active: { title: 'Active', icon: 'play-circle-outline' },
@@ -49,6 +52,10 @@ export default function RecurringDashboardScreen() {
   const logs = useRecurringLogs();
   const { data: categories } = useExpenseCategories();
   const generateDue = useGenerateDueRecurring();
+  const generateRange = useGenerateRangeRecurring();
+  const [rangeModalOpen, setRangeModalOpen] = useState(false);
+  const [rangeStart, setRangeStart] = useState(toISODateString(new Date()));
+  const [rangeEnd, setRangeEnd] = useState(toISODateString(new Date()));
 
   const categoryLookup = useMemo(() => {
     const map = new Map<number, { color: string; icon: string }>();
@@ -111,7 +118,14 @@ export default function RecurringDashboardScreen() {
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetchAll} />}>
         {dashboard.data ? (
-          <RecurringSummaryCards summary={dashboard.data.summary} currency={currency} />
+          <RecurringSummaryCards
+            activeCount={grouped.active.length}
+            pausedCount={grouped.paused.length}
+            completedCount={grouped.completed.length}
+            estimatedMonthlyTotal={dashboard.data.summary.estimated_monthly_total}
+            overdueCount={dashboard.data.summary.overdue_count}
+            currency={currency}
+          />
         ) : null}
 
         {hasDue ? (
@@ -133,6 +147,17 @@ export default function RecurringDashboardScreen() {
             </ThemedText>
           </Pressable>
         ) : null}
+
+        <Pressable
+          onPress={() => setRangeModalOpen(true)}
+          style={({ pressed }) => [
+            styles.generateRangeButton,
+            { backgroundColor: theme.backgroundElement },
+            pressed && styles.pressed,
+          ]}>
+          <Ionicons name="calendar-outline" size={16} color={theme.text} />
+          <ThemedText type="smallBold">Generate for date range</ThemedText>
+        </Pressable>
 
         <View style={styles.section}>
           <SectionHeader
@@ -220,6 +245,27 @@ export default function RecurringDashboardScreen() {
       </ScrollView>
 
       <Fab onPress={() => router.push('/profile/recurring/new')} />
+
+      <RecurringGenerateRangeModal
+        visible={rangeModalOpen}
+        startDate={rangeStart}
+        endDate={rangeEnd}
+        onChangeStartDate={setRangeStart}
+        onChangeEndDate={setRangeEnd}
+        isSubmitting={generateRange.isPending}
+        onClose={() => setRangeModalOpen(false)}
+        onGenerate={() => {
+          generateRange.mutate(
+            { start_date: rangeStart, end_date: rangeEnd },
+            {
+              onSuccess: (result) => {
+                showToast(result.message);
+                setRangeModalOpen(false);
+              },
+            }
+          );
+        }}
+      />
     </ThemedView>
   );
 }
@@ -249,6 +295,14 @@ const styles = StyleSheet.create({
   },
   generateDueText: {
     color: '#ffffff',
+  },
+  generateRangeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.one,
+    borderRadius: Spacing.two,
+    paddingVertical: Spacing.three,
   },
   pressed: {
     opacity: 0.85,
