@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
+import { FormActions } from '@/components/form-actions';
 import { SelectModal, type SelectOption } from '@/components/select-modal';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
@@ -221,22 +222,12 @@ export function RecurringForm({
         </ThemedText>
       ) : null}
 
-      <Pressable
-        disabled={isSubmitting}
-        onPress={handleSubmit(onSubmit)}
-        style={({ pressed }) => [
-          styles.submitButton,
-          { backgroundColor: theme.primary },
-          pressed && styles.pressed,
-        ]}>
-        <ThemedText type="smallBold" style={styles.submitButtonText}>
-          {isSubmitting ? 'Saving…' : submitLabel}
-        </ThemedText>
-      </Pressable>
-
-      <Pressable disabled={isSubmitting} onPress={onCancel} style={styles.cancelButton}>
-        <ThemedText type="smallBold">Cancel</ThemedText>
-      </Pressable>
+      <FormActions
+        submitLabel={submitLabel}
+        onSubmit={handleSubmit(onSubmit)}
+        onCancel={onCancel}
+        isSubmitting={isSubmitting}
+      />
 
       <SelectModal
         visible={categoryPickerOpen}
@@ -292,20 +283,6 @@ const styles = StyleSheet.create({
   },
   hint: {
     marginTop: -Spacing.two,
-  },
-  submitButton: {
-    borderRadius: Radius.medium,
-    paddingVertical: Spacing.three,
-    alignItems: 'center',
-    marginTop: Spacing.two,
-  },
-  submitButtonText: {
-    color: '#ffffff',
-  },
-  cancelButton: {
-    borderRadius: Radius.medium,
-    paddingVertical: Spacing.three,
-    alignItems: 'center',
   },
   pressed: {
     opacity: 0.85,

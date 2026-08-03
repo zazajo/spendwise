@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
+import { FormActions } from '@/components/form-actions';
 import { ParticipantSplitRow } from '@/components/groups/participant-split-row';
 import { SplitTypeSelector } from '@/components/groups/split-type-selector';
 import { SelectModal, type SelectOption } from '@/components/select-modal';
@@ -233,22 +234,13 @@ export function GroupExpenseForm({
         </ThemedText>
       ) : null}
 
-      <Pressable
-        disabled={isSubmitting || Boolean(splitError)}
-        onPress={handleSubmit(submitHandler)}
-        style={({ pressed }) => [
-          styles.submitButton,
-          { backgroundColor: theme.primary },
-          (pressed || isSubmitting || splitError) && styles.pressed,
-        ]}>
-        <ThemedText type="smallBold" style={styles.submitButtonText}>
-          {isSubmitting ? 'Saving…' : submitLabel}
-        </ThemedText>
-      </Pressable>
-
-      <Pressable disabled={isSubmitting} onPress={onCancel} style={styles.cancelButton}>
-        <ThemedText type="smallBold">Cancel</ThemedText>
-      </Pressable>
+      <FormActions
+        submitLabel={submitLabel}
+        onSubmit={handleSubmit(submitHandler)}
+        onCancel={onCancel}
+        isSubmitting={isSubmitting}
+        submitDisabled={Boolean(splitError)}
+      />
 
       <SelectModal
         visible={paidByPickerOpen}
@@ -286,20 +278,6 @@ const styles = StyleSheet.create({
   quickActions: {
     flexDirection: 'row',
     gap: Spacing.three,
-  },
-  submitButton: {
-    borderRadius: Radius.medium,
-    paddingVertical: Spacing.three,
-    alignItems: 'center',
-    marginTop: Spacing.two,
-  },
-  submitButtonText: {
-    color: '#ffffff',
-  },
-  cancelButton: {
-    borderRadius: Radius.medium,
-    paddingVertical: Spacing.three,
-    alignItems: 'center',
   },
   pressed: {
     opacity: 0.7,
