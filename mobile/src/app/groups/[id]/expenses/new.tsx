@@ -15,7 +15,6 @@ export default function NewGroupExpenseScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const groupId = Number(id);
   const { user } = useAuth();
-  const currency = user?.profile.currency ?? '';
 
   const group = useGroup(groupId);
   const createExpense = useCreateGroupExpense();
@@ -44,7 +43,6 @@ export default function NewGroupExpenseScreen() {
     <ThemedView style={{ flex: 1 }}>
       <GroupExpenseForm
         group={group.data}
-        currency={currency}
         defaultValues={defaultValues}
         submitLabel="Add expense"
         isSubmitting={createExpense.isPending}

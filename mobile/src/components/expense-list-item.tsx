@@ -3,16 +3,17 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import type { Expense } from '@/types/expense';
 import { formatCurrency } from '@/utils/format';
 
 type ExpenseListItemProps = {
   expense: Expense;
-  currency: string;
   onPress: () => void;
 };
 
-export function ExpenseListItem({ expense, currency, onPress }: ExpenseListItemProps) {
+export function ExpenseListItem({ expense, onPress }: ExpenseListItemProps) {
+  const currency = useCurrency();
   const categoryColor = expense.category_details?.color ?? '#9AA0A6';
 
   return (

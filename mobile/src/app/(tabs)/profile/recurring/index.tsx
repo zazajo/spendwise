@@ -16,7 +16,6 @@ import { SectionHeader } from '@/components/section-header';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { useAuth } from '@/hooks/use-auth';
 import { useExpenseCategories } from '@/hooks/use-expense-categories';
 import { useGenerateDueRecurring } from '@/hooks/use-generate-due-recurring';
 import { useGenerateRangeRecurring } from '@/hooks/use-generate-range-recurring';
@@ -43,9 +42,7 @@ const UPCOMING_PREVIEW_COUNT = 6;
 const RECENT_LOG_COUNT = 5;
 
 export default function RecurringDashboardScreen() {
-  const { user } = useAuth();
   const theme = useTheme();
-  const currency = user?.profile.currency ?? '';
 
   const dashboard = useRecurringDashboard();
   const allRecurring = useRecurringExpenses({});
@@ -124,7 +121,6 @@ export default function RecurringDashboardScreen() {
             completedCount={grouped.completed.length}
             estimatedMonthlyTotal={dashboard.data.summary.estimated_monthly_total}
             overdueCount={dashboard.data.summary.overdue_count}
-            currency={currency}
           />
         ) : null}
 
@@ -173,7 +169,6 @@ export default function RecurringDashboardScreen() {
                 <RecurringUpcomingItem
                   key={item.id}
                   recurring={item}
-                  currency={currency}
                   onPress={() =>
                     router.push({ pathname: '/profile/recurring/[id]', params: { id: String(item.id) } })
                   }
@@ -191,7 +186,6 @@ export default function RecurringDashboardScreen() {
                 <ExpenseListItem
                   key={log.id}
                   expense={log.expense_details!}
-                  currency={currency}
                   onPress={() =>
                     router.push({
                       pathname: '/profile/recurring/[id]',
@@ -220,7 +214,6 @@ export default function RecurringDashboardScreen() {
                   <RecurringCard
                     key={item.id}
                     recurring={item}
-                    currency={currency}
                     categoryColor={categoryLookup.get(item.category)?.color}
                     categoryIcon={categoryLookup.get(item.category)?.icon}
                     onPress={() =>

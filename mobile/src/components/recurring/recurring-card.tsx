@@ -7,6 +7,7 @@ import { RecurringStatusBadge } from '@/components/recurring/recurring-status-ba
 import { ThemedText } from '@/components/themed-text';
 import { DEFAULT_CATEGORY_COLOR, DEFAULT_CATEGORY_ICON } from '@/constants/category-options';
 import { Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import { useTheme } from '@/hooks/use-theme';
 import { getRecurringLifecycleStatus, type RecurringExpense } from '@/types/recurring';
 import { getDueUrgency } from '@/utils/recurring';
@@ -14,7 +15,6 @@ import { formatCurrency } from '@/utils/format';
 
 type RecurringCardProps = {
   recurring: RecurringExpense;
-  currency: string;
   categoryColor?: string;
   categoryIcon?: string;
   onPress: () => void;
@@ -25,7 +25,6 @@ type RecurringCardProps = {
 
 export function RecurringCard({
   recurring,
-  currency,
   categoryColor = DEFAULT_CATEGORY_COLOR,
   categoryIcon = DEFAULT_CATEGORY_ICON,
   onPress,
@@ -33,6 +32,7 @@ export function RecurringCard({
   selectionMode = false,
   selected = false,
 }: RecurringCardProps) {
+  const currency = useCurrency();
   const theme = useTheme();
   const status = getRecurringLifecycleStatus(recurring);
   const urgency = status === 'active' ? getDueUrgency(recurring.next_occurrence) : null;

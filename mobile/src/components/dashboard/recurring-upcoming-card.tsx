@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Card } from '@/components/card';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import { useTheme } from '@/hooks/use-theme';
 import type { RecurringExpense } from '@/types/recurring';
 import { formatCurrency } from '@/utils/format';
@@ -11,11 +12,11 @@ import { getDueUrgency } from '@/utils/recurring';
 
 type RecurringUpcomingCardProps = {
   items: RecurringExpense[];
-  currency: string;
   onPress: () => void;
 };
 
-export function RecurringUpcomingCard({ items, currency, onPress }: RecurringUpcomingCardProps) {
+export function RecurringUpcomingCard({ items, onPress }: RecurringUpcomingCardProps) {
+  const currency = useCurrency();
   const theme = useTheme();
   if (items.length === 0) return null;
 

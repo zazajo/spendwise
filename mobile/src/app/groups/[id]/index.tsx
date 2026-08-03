@@ -31,7 +31,6 @@ export default function GroupDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const groupId = Number(id);
   const { user } = useAuth();
-  const currency = user?.profile.currency ?? '';
   const theme = useTheme();
 
   const group = useGroup(groupId);
@@ -91,7 +90,7 @@ export default function GroupDetailScreen() {
           ) : null}
         </View>
 
-        <BalanceSummaryCard balance={balanceAmount} currency={currency} />
+        <BalanceSummaryCard balance={balanceAmount} />
 
         <Pressable
           style={styles.membersRow}
@@ -161,7 +160,6 @@ export default function GroupDetailScreen() {
                 <GroupExpenseListItem
                   key={expense.id}
                   expense={expense}
-                  currency={currency}
                   onPress={() =>
                     router.push({
                       pathname: '/groups/[id]/expenses/[expenseId]',

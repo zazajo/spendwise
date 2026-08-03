@@ -19,7 +19,6 @@ import { useTheme } from '@/hooks/use-theme';
 export default function GroupsOverviewScreen() {
   const { user } = useAuth();
   const theme = useTheme();
-  const currency = user?.profile.currency ?? '';
   const [searchInput, setSearchInput] = useState('');
   const search = useDebouncedValue(searchInput, 300);
 
@@ -69,7 +68,6 @@ export default function GroupsOverviewScreen() {
                   key={group.id}
                   group={group}
                   currentUserId={user?.id ?? 0}
-                  currency={currency}
                   onPress={() =>
                     router.push({ pathname: '/groups/[id]', params: { id: String(group.id) } })
                   }

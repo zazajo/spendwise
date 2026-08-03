@@ -4,13 +4,13 @@ import { StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import { useTheme } from '@/hooks/use-theme';
 import type { RecurringLog, RecurringLogStatus } from '@/types/recurring';
 import { formatCurrency } from '@/utils/format';
 
 type RecurringLogItemProps = {
   log: RecurringLog;
-  currency: string;
 };
 
 const STATUS_ICON: Record<RecurringLogStatus, keyof typeof Ionicons.glyphMap> = {
@@ -19,7 +19,8 @@ const STATUS_ICON: Record<RecurringLogStatus, keyof typeof Ionicons.glyphMap> = 
   failed: 'close-circle',
 };
 
-export function RecurringLogItem({ log, currency }: RecurringLogItemProps) {
+export function RecurringLogItem({ log }: RecurringLogItemProps) {
+  const currency = useCurrency();
   const theme = useTheme();
 
   const statusColor: Record<RecurringLogStatus, string> = {

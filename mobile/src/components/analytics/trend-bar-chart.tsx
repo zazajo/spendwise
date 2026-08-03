@@ -4,17 +4,18 @@ import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from '
 
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import { useTheme } from '@/hooks/use-theme';
 import type { TrendBucket } from '@/utils/analytics';
 import { formatCurrency } from '@/utils/format';
 
 type TrendBarChartProps = {
   buckets: TrendBucket[];
-  currency: string;
   height?: number;
 };
 
-export function TrendBarChart({ buckets, currency, height = 140 }: TrendBarChartProps) {
+export function TrendBarChart({ buckets, height = 140 }: TrendBarChartProps) {
+  const currency = useCurrency();
   const theme = useTheme();
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const maxTotal = Math.max(...buckets.map((bucket) => bucket.total), 1);

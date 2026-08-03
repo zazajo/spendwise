@@ -5,6 +5,7 @@ import { MemberAvatar } from '@/components/groups/member-avatar';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import { useTheme } from '@/hooks/use-theme';
 import type { GroupMembership, SplitType } from '@/types/group';
 import { memberDisplayName } from '@/utils/group';
@@ -18,7 +19,6 @@ type ParticipantSplitRowProps = {
   value: string;
   onChangeValue: (value: string) => void;
   computedAmount?: string;
-  currency: string;
 };
 
 const PLACEHOLDER: Record<Exclude<SplitType, 'equal'>, string> = {
@@ -35,8 +35,8 @@ export function ParticipantSplitRow({
   value,
   onChangeValue,
   computedAmount,
-  currency,
-}: ParticipantSplitRowProps) {
+  }: ParticipantSplitRowProps) {
+  const currency = useCurrency();
   const theme = useTheme();
   const name = memberDisplayName(member);
 

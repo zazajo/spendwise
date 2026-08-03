@@ -7,7 +7,7 @@ import { ErrorState } from '@/components/error-state';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
-import { useAuth } from '@/hooks/use-auth';
+import { useCurrency } from '@/hooks/use-currency';
 import { useDeleteExpense } from '@/hooks/use-delete-expense';
 import { useExpense } from '@/hooks/use-expense';
 import { useTheme } from '@/hooks/use-theme';
@@ -20,9 +20,8 @@ function capitalize(value: string) {
 export default function ExpenseDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const expenseId = Number(id);
-  const { user } = useAuth();
   const theme = useTheme();
-  const currency = user?.profile.currency ?? '';
+  const currency = useCurrency();
 
   const { data: expense, isLoading, isError, refetch } = useExpense(expenseId);
   const deleteExpense = useDeleteExpense();

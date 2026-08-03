@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/skeleton';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
-import { useAuth } from '@/hooks/use-auth';
+import { useCurrency } from '@/hooks/use-currency';
 import { useSpendingTrends } from '@/hooks/use-spending-trends';
 import { useTheme } from '@/hooks/use-theme';
 import type { TrendGranularity } from '@/utils/analytics';
@@ -24,8 +24,7 @@ const GRANULARITY_OPTIONS: { value: TrendGranularity; label: string }[] = [
 
 export default function SpendingTrendsScreen() {
   const theme = useTheme();
-  const { user } = useAuth();
-  const currency = user?.profile.currency ?? '';
+  const currency = useCurrency();
   const [granularity, setGranularity] = useState<TrendGranularity>('monthly');
 
   const { data, isLoading, isError, isRefetching, refetch } = useSpendingTrends(granularity);
@@ -63,7 +62,7 @@ export default function SpendingTrendsScreen() {
         ) : (
           <>
             <Card>
-              <TrendBarChart buckets={data.buckets} currency={currency} height={180} />
+              <TrendBarChart buckets={data.buckets} height={180} />
             </Card>
 
             <View style={styles.trendRow}>

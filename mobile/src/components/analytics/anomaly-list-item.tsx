@@ -4,15 +4,16 @@ import { SeverityBadge } from '@/components/analytics/severity-badge';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import type { Anomaly } from '@/types/analytics';
 import { formatCurrency } from '@/utils/format';
 
 type AnomalyListItemProps = {
   anomaly: Anomaly;
-  currency: string;
 };
 
-export function AnomalyListItem({ anomaly, currency }: AnomalyListItemProps) {
+export function AnomalyListItem({ anomaly }: AnomalyListItemProps) {
+  const currency = useCurrency();
   return (
     <ThemedView type="backgroundElement" style={styles.container}>
       <View style={styles.topRow}>

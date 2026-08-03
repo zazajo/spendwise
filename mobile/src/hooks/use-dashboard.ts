@@ -41,7 +41,6 @@ export function useDashboard() {
 
   return {
     user,
-    currency: user?.profile.currency ?? '',
     greeting: formatGreetingTime(),
     monthSummary: summary.data,
     recentExpenses: recent.data ?? [],

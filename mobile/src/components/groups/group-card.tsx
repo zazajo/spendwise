@@ -5,6 +5,7 @@ import { Card } from '@/components/card';
 import { MemberAvatar } from '@/components/groups/member-avatar';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import { useGroupBalance } from '@/hooks/use-group-balance';
 import { useTheme } from '@/hooks/use-theme';
 import type { Group } from '@/types/group';
@@ -14,13 +15,13 @@ import { formatCurrency } from '@/utils/format';
 type GroupCardProps = {
   group: Group;
   currentUserId: number;
-  currency: string;
   onPress: () => void;
 };
 
 const MAX_VISIBLE_AVATARS = 4;
 
-export function GroupCard({ group, currentUserId, currency, onPress }: GroupCardProps) {
+export function GroupCard({ group, currentUserId, onPress }: GroupCardProps) {
+  const currency = useCurrency();
   const theme = useTheme();
   const balanceQuery = useGroupBalance(group.id);
 

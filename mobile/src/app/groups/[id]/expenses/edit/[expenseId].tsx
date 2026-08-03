@@ -3,7 +3,6 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { GroupExpenseForm } from '@/components/groups/group-expense-form';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { useAuth } from '@/hooks/use-auth';
 import { useGroup } from '@/hooks/use-group';
 import { useGroupExpense } from '@/hooks/use-group-expense';
 import { useUpdateGroupExpense } from '@/hooks/use-update-group-expense';
@@ -15,8 +14,6 @@ export default function EditGroupExpenseScreen() {
   const { id, expenseId } = useLocalSearchParams<{ id: string; expenseId: string }>();
   const groupId = Number(id);
   const expenseIdNum = Number(expenseId);
-  const { user } = useAuth();
-  const currency = user?.profile.currency ?? '';
 
   const group = useGroup(groupId);
   const { data: expense, isLoading: expenseLoading } = useGroupExpense(expenseIdNum);
@@ -55,7 +52,6 @@ export default function EditGroupExpenseScreen() {
     <ThemedView style={{ flex: 1 }}>
       <GroupExpenseForm
         group={group.data}
-        currency={currency}
         defaultValues={defaultValues}
         submitLabel="Save changes"
         isSubmitting={updateExpense.isPending}

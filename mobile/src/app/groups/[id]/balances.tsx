@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/skeleton';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import { useAuth } from '@/hooks/use-auth';
 import { useCreateSettlement } from '@/hooks/use-create-settlement';
 import { useGroupBalance } from '@/hooks/use-group-balance';
@@ -26,7 +27,7 @@ export default function GroupBalancesScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const groupId = Number(id);
   const { user } = useAuth();
-  const currency = user?.profile.currency ?? '';
+  const currency = useCurrency();
   const theme = useTheme();
 
   const balance = useGroupBalance(groupId);
@@ -79,7 +80,7 @@ export default function GroupBalancesScreen() {
       <ScrollView
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetchAll} />}>
-        <BalanceSummaryCard balance={myBalanceAmount} currency={currency} />
+        <BalanceSummaryCard balance={myBalanceAmount} />
 
         <View style={styles.section}>
           <SectionHeader title="Member balances" />
@@ -124,7 +125,6 @@ export default function GroupBalancesScreen() {
                 <SettlementSuggestionItem
                   key={`${suggestion.from_id}-${suggestion.to_id}-${index}`}
                   suggestion={suggestion}
-                  currency={currency}
                   canSettle={suggestion.from_id === user?.id || suggestion.to_id === user?.id}
                   isSettling={createSettlement.isPending}
                   onSettle={() => handleSettle(suggestion)}

@@ -5,6 +5,7 @@ import { Card } from '@/components/card';
 import { ProgressBar } from '@/components/progress-bar';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing, type ThemeColor } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import { useTheme } from '@/hooks/use-theme';
 import type {
   BudgetVarianceData,
@@ -18,20 +19,20 @@ import { formatCurrency } from '@/utils/format';
 type ReportSummaryStatsProps = {
   reportType: ReportType;
   data: ReportData;
-  currency: string;
 };
 
-export function ReportSummaryStats({ reportType, data, currency }: ReportSummaryStatsProps) {
+export function ReportSummaryStats({ reportType, data }: ReportSummaryStatsProps) {
   if (reportType === 'monthly_summary') {
-    return <MonthlySummaryStats data={data as MonthlySummaryData} currency={currency} />;
+    return <MonthlySummaryStats data={data as MonthlySummaryData} />;
   }
   if (reportType === 'category_analysis') {
-    return <CategoryBreakdownStats data={data as CategoryBreakdownData} currency={currency} />;
+    return <CategoryBreakdownStats data={data as CategoryBreakdownData} />;
   }
-  return <BudgetVarianceStats data={data as BudgetVarianceData} currency={currency} />;
+  return <BudgetVarianceStats data={data as BudgetVarianceData} />;
 }
 
-function MonthlySummaryStats({ data, currency }: { data: MonthlySummaryData; currency: string }) {
+function MonthlySummaryStats({ data }: { data: MonthlySummaryData }) {
+  const currency = useCurrency();
   const theme = useTheme();
   const trendColor = data.trend === 'up' ? theme.danger : data.trend === 'down' ? theme.success : theme.textSecondary;
   const trendIcon = data.trend === 'up' ? 'trending-up' : data.trend === 'down' ? 'trending-down' : 'remove';
@@ -86,7 +87,8 @@ function MonthlySummaryStats({ data, currency }: { data: MonthlySummaryData; cur
   );
 }
 
-function CategoryBreakdownStats({ data, currency }: { data: CategoryBreakdownData; currency: string }) {
+function CategoryBreakdownStats({ data }: { data: CategoryBreakdownData }) {
+  const currency = useCurrency();
   return (
     <View style={styles.stack}>
       <Card style={styles.statsCard}>
@@ -138,7 +140,8 @@ const VARIANCE_STATUS_COLOR: Record<BudgetVarianceData['categories'][number]['st
   on_track: 'textSecondary',
 };
 
-function BudgetVarianceStats({ data, currency }: { data: BudgetVarianceData; currency: string }) {
+function BudgetVarianceStats({ data }: { data: BudgetVarianceData }) {
+  const currency = useCurrency();
   const theme = useTheme();
   const totalColor = data.total_variance > 0 ? theme.danger : theme.success;
 

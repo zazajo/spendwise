@@ -17,7 +17,6 @@ import { memberDisplayName } from '@/utils/group';
 
 type GroupExpenseFormProps = {
   group: Group;
-  currency: string;
   defaultValues: GroupExpenseFormValues;
   submitLabel: string;
   isSubmitting: boolean;
@@ -28,7 +27,6 @@ type GroupExpenseFormProps = {
 
 export function GroupExpenseForm({
   group,
-  currency,
   defaultValues,
   submitLabel,
   isSubmitting,
@@ -200,7 +198,6 @@ export function GroupExpenseForm({
               setValue('splitInputs', { ...splitInputs, [member.user]: value }, { shouldValidate: true })
             }
             computedAmount={equalPreview[member.user]}
-            currency={currency}
           />
         ))}
 

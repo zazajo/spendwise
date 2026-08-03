@@ -4,17 +4,18 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import { useTheme } from '@/hooks/use-theme';
 import type { GroupExpense } from '@/types/group';
 import { formatCurrency } from '@/utils/format';
 
 type GroupExpenseListItemProps = {
   expense: GroupExpense;
-  currency: string;
   onPress: () => void;
 };
 
-export function GroupExpenseListItem({ expense, currency, onPress }: GroupExpenseListItemProps) {
+export function GroupExpenseListItem({ expense, onPress }: GroupExpenseListItemProps) {
+  const currency = useCurrency();
   const theme = useTheme();
 
   return (

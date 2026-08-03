@@ -17,6 +17,7 @@ import { SectionHeader } from '@/components/section-header';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import { useAnalyticsDashboard } from '@/hooks/use-analytics-dashboard';
 import { useAuth } from '@/hooks/use-auth';
 import { useBudgetSummary } from '@/hooks/use-budget-summary';
@@ -39,7 +40,7 @@ function trendPointToBucket(point: MonthlyTrendPoint): TrendBucket {
 
 export default function AnalyticsDashboardScreen() {
   const { user } = useAuth();
-  const currency = user?.profile.currency ?? '';
+  const currency = useCurrency();
   const monthlyIncome = user?.profile.monthly_income ? Number(user.profile.monthly_income) : null;
 
   const dashboard = useAnalyticsDashboard();
@@ -102,7 +103,7 @@ export default function AnalyticsDashboardScreen() {
         <View style={styles.section}>
           <SectionHeader title="Monthly spending trends" actionLabel="See all" onAction={() => router.push('/analytics/trends')} />
           <Card>
-            <TrendBarChart buckets={trendBuckets} currency={currency} />
+            <TrendBarChart buckets={trendBuckets} />
           </Card>
         </View>
 
@@ -112,7 +113,7 @@ export default function AnalyticsDashboardScreen() {
             actionLabel="See all"
             onAction={() => router.push('/analytics/categories')}
           />
-          <CategoryBreakdownSection categories={categoryAnalysis.data ?? []} currency={currency} />
+          <CategoryBreakdownSection categories={categoryAnalysis.data ?? []} />
         </View>
 
         {monthlyIncome !== null ? (
@@ -156,7 +157,6 @@ export default function AnalyticsDashboardScreen() {
                 status: 'none',
               }
             }
-            currency={currency}
             onSetBudget={() => router.push('/budgets/new')}
             emptyActionLabel="Create budget"
           />
@@ -194,7 +194,7 @@ export default function AnalyticsDashboardScreen() {
           ) : (
             <View style={{ gap: Spacing.two }}>
               {recent_anomalies.map((anomaly) => (
-                <AnomalyListItem key={anomaly.expense_id} anomaly={anomaly} currency={currency} />
+                <AnomalyListItem key={anomaly.expense_id} anomaly={anomaly} />
               ))}
             </View>
           )}
@@ -202,7 +202,6 @@ export default function AnalyticsDashboardScreen() {
 
         <RecentExpensesSection
           expenses={recentExpenses.data ?? []}
-          currency={currency}
           onPressExpense={(id) => router.push({ pathname: '/expenses/[id]', params: { id: String(id) } })}
           onSeeAll={() => router.push('/expenses')}
           onAddExpense={() => router.push('/expenses/new')}

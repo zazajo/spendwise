@@ -7,6 +7,7 @@ import { ProgressBar } from '@/components/progress-bar';
 import { ThemedText } from '@/components/themed-text';
 import { DEFAULT_CATEGORY_ICON } from '@/constants/category-options';
 import { Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import { useTheme } from '@/hooks/use-theme';
 import { BUDGET_PERIODS, type Budget } from '@/types/budget';
 import { getBudgetStatusLevel, type BudgetStatusLevel } from '@/utils/budget';
@@ -14,7 +15,6 @@ import { formatCurrency } from '@/utils/format';
 
 type BudgetCardProps = {
   budget: Budget;
-  currency: string;
   onPress: () => void;
 };
 
@@ -25,7 +25,8 @@ const STATUS_COLOR_KEY: Record<BudgetStatusLevel, 'success' | 'warning' | 'dange
   exceeded: 'danger',
 };
 
-export function BudgetCard({ budget, currency, onPress }: BudgetCardProps) {
+export function BudgetCard({ budget, onPress }: BudgetCardProps) {
+  const currency = useCurrency();
   const theme = useTheme();
   const status = getBudgetStatusLevel(budget.percentage_used);
   const statusColor = theme[STATUS_COLOR_KEY[status]];

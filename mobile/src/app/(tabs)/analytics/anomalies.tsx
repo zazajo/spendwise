@@ -11,13 +11,10 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useAnomalies } from '@/hooks/use-anomalies';
 import { useAnomalyRules } from '@/hooks/use-anomaly-rules';
-import { useAuth } from '@/hooks/use-auth';
 import { useEnableAnomalyDetection } from '@/hooks/use-enable-anomaly-detection';
 import { showToast } from '@/hooks/use-toast';
 
 export default function AnomalyDetectionScreen() {
-  const { user } = useAuth();
-  const currency = user?.profile.currency ?? '';
 
   const rules = useAnomalyRules();
   const anomalies = useAnomalies();
@@ -76,7 +73,7 @@ export default function AnomalyDetectionScreen() {
             </ThemedText>
             <View style={{ gap: Spacing.two }}>
               {anomalyList.map((anomaly) => (
-                <AnomalyListItem key={anomaly.expense_id} anomaly={anomaly} currency={currency} />
+                <AnomalyListItem key={anomaly.expense_id} anomaly={anomaly} />
               ))}
             </View>
           </>

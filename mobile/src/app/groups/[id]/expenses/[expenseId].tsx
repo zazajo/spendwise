@@ -8,6 +8,7 @@ import { ErrorState } from '@/components/error-state';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import { useAuth } from '@/hooks/use-auth';
 import { useDeleteGroupExpense } from '@/hooks/use-delete-group-expense';
 import { useGroupExpense } from '@/hooks/use-group-expense';
@@ -28,7 +29,7 @@ export default function GroupExpenseDetailScreen() {
   const groupId = Number(id);
   const expenseIdNum = Number(expenseId);
   const { user } = useAuth();
-  const currency = user?.profile.currency ?? '';
+  const currency = useCurrency();
   const theme = useTheme();
 
   const { data: expense, isLoading, isError, refetch } = useGroupExpense(expenseIdNum);

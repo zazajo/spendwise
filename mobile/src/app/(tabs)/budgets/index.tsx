@@ -12,7 +12,6 @@ import { Fab } from '@/components/fab';
 import { SectionHeader } from '@/components/section-header';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { useAuth } from '@/hooks/use-auth';
 import { useBudgetAlerts } from '@/hooks/use-budget-alerts';
 import { useBudgetSummary } from '@/hooks/use-budget-summary';
 import { useBudgets } from '@/hooks/use-budgets';
@@ -29,8 +28,6 @@ const EMPTY_BUDGET_OVERVIEW: BudgetOverview = {
 };
 
 export default function BudgetsOverviewScreen() {
-  const { user } = useAuth();
-  const currency = user?.profile.currency ?? '';
 
   const summary = useBudgetSummary();
   const budgets = useBudgets({ is_active: true });
@@ -74,7 +71,6 @@ export default function BudgetsOverviewScreen() {
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetchAll} />}>
         <BudgetProgressCard
           overview={summary.data ?? EMPTY_BUDGET_OVERVIEW}
-          currency={currency}
           onSetBudget={() => router.push('/budgets/new')}
           emptyActionLabel="Create budget"
         />
@@ -115,7 +111,6 @@ export default function BudgetsOverviewScreen() {
                 <BudgetCard
                   key={budget.id}
                   budget={budget}
-                  currency={currency}
                   onPress={() =>
                     router.push({ pathname: '/budgets/[id]', params: { id: String(budget.id) } })
                   }

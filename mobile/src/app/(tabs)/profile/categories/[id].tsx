@@ -13,8 +13,8 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { DEFAULT_CATEGORY_ICON } from '@/constants/category-options';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import { useArchiveCategory } from '@/hooks/use-archive-category';
-import { useAuth } from '@/hooks/use-auth';
 import { useCategory } from '@/hooks/use-category';
 import { useCategoryExpenses } from '@/hooks/use-category-expenses';
 import { useRestoreCategory } from '@/hooks/use-restore-category';
@@ -25,8 +25,7 @@ import { formatCurrency } from '@/utils/format';
 export default function CategoryDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const categoryId = Number(id);
-  const { user } = useAuth();
-  const currency = user?.profile.currency ?? '';
+  const currency = useCurrency();
   const theme = useTheme();
 
   const { data: category, isLoading, isError, refetch } = useCategory(categoryId);
@@ -128,7 +127,6 @@ export default function CategoryDetailScreen() {
                 <ExpenseListItem
                   key={expense.id}
                   expense={expense}
-                  currency={currency}
                   onPress={() =>
                     router.push({ pathname: '/expenses/[id]', params: { id: String(expense.id) } })
                   }

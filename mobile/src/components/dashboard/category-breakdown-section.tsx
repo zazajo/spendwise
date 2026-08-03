@@ -6,15 +6,16 @@ import { ProgressBar } from '@/components/progress-bar';
 import { SectionHeader } from '@/components/section-header';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import type { CategorySpend } from '@/types/expense';
 import { formatCurrency } from '@/utils/format';
 
 type CategoryBreakdownSectionProps = {
   categories: CategorySpend[];
-  currency: string;
 };
 
-export function CategoryBreakdownSection({ categories, currency }: CategoryBreakdownSectionProps) {
+export function CategoryBreakdownSection({ categories }: CategoryBreakdownSectionProps) {
+  const currency = useCurrency();
   return (
     <View>
       <SectionHeader title="Spending by category" />

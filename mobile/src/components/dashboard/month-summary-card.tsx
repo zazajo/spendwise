@@ -3,15 +3,16 @@ import { StyleSheet } from 'react-native';
 import { Card } from '@/components/card';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import { formatCurrency } from '@/utils/format';
 
 type MonthSummaryCardProps = {
   totalAmount: number;
-  currency: string;
   expenseCount: number;
 };
 
-export function MonthSummaryCard({ totalAmount, currency, expenseCount }: MonthSummaryCardProps) {
+export function MonthSummaryCard({ totalAmount, expenseCount }: MonthSummaryCardProps) {
+  const currency = useCurrency();
   const monthName = new Date().toLocaleDateString(undefined, { month: 'long' });
 
   return (

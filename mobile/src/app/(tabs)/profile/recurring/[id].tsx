@@ -15,7 +15,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { DEFAULT_CATEGORY_ICON } from '@/constants/category-options';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
-import { useAuth } from '@/hooks/use-auth';
+import { useCurrency } from '@/hooks/use-currency';
 import { useDeleteRecurringExpense } from '@/hooks/use-delete-recurring-expense';
 import { useExpenseCategories } from '@/hooks/use-expense-categories';
 import { useGenerateRecurringExpense } from '@/hooks/use-generate-recurring-expense';
@@ -32,8 +32,7 @@ import { getIntervalLabel } from '@/utils/recurring';
 export default function RecurringDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const recurringId = Number(id);
-  const { user } = useAuth();
-  const currency = user?.profile.currency ?? '';
+  const currency = useCurrency();
   const theme = useTheme();
 
   const { data: recurring, isLoading, isError, refetch } = useRecurringExpense(recurringId);
@@ -230,7 +229,7 @@ export default function RecurringDetailScreen() {
           ) : (
             <View style={{ gap: Spacing.two }}>
               {history.map((log) => (
-                <RecurringLogItem key={log.id} log={log} currency={currency} />
+                <RecurringLogItem key={log.id} log={log} />
               ))}
             </View>
           )}

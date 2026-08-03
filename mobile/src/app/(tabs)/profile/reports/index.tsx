@@ -15,7 +15,7 @@ import { SectionHeader } from '@/components/section-header';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { useAuth } from '@/hooks/use-auth';
+import { useCurrency } from '@/hooks/use-currency';
 import { useBudgetVarianceReport } from '@/hooks/use-budget-variance-report';
 import { useCategoryBreakdownReport } from '@/hooks/use-category-breakdown-report';
 import { useMonthlySummaryReport } from '@/hooks/use-monthly-summary-report';
@@ -26,9 +26,8 @@ import { formatCurrency } from '@/utils/format';
 const RECENT_COUNT = 5;
 
 export default function ReportsDashboardScreen() {
-  const { user } = useAuth();
   const theme = useTheme();
-  const currency = user?.profile.currency ?? '';
+  const currency = useCurrency();
 
   const monthly = useMonthlySummaryReport();
   const budgetVariance = useBudgetVarianceReport();
@@ -108,7 +107,7 @@ export default function ReportsDashboardScreen() {
           </Card>
         ) : null}
 
-        <ReportTrendsSummaryCard currency={currency} onSeeAll={() => router.push('/analytics/trends')} />
+        <ReportTrendsSummaryCard onSeeAll={() => router.push('/analytics/trends')} />
 
         {budgetVariance.data ? (
           <Card style={styles.card}>

@@ -2,6 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { StatTile } from '@/components/analytics/stat-tile';
 import { Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import { useTheme } from '@/hooks/use-theme';
 import { formatCurrency } from '@/utils/format';
 
@@ -11,7 +12,6 @@ type RecurringSummaryCardsProps = {
   completedCount: number;
   estimatedMonthlyTotal: number;
   overdueCount: number;
-  currency: string;
 };
 
 // Counts are derived client-side from getRecurringLifecycleStatus() (matching the
@@ -24,8 +24,8 @@ export function RecurringSummaryCards({
   completedCount,
   estimatedMonthlyTotal,
   overdueCount,
-  currency,
-}: RecurringSummaryCardsProps) {
+  }: RecurringSummaryCardsProps) {
+  const currency = useCurrency();
   const theme = useTheme();
 
   return (

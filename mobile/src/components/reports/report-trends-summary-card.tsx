@@ -3,18 +3,19 @@ import { EmptyState } from '@/components/empty-state';
 import { TrendBarChart } from '@/components/analytics/trend-bar-chart';
 import { TrendIndicator } from '@/components/analytics/trend-indicator';
 import { SectionHeader } from '@/components/section-header';
+import { useCurrency } from '@/hooks/use-currency';
 import { useSpendingTrends } from '@/hooks/use-spending-trends';
 import { formatCurrency } from '@/utils/format';
 
 type ReportTrendsSummaryCardProps = {
-  currency: string;
   onSeeAll: () => void;
 };
 
 // Reuses the existing analytics trends hook/components as-is (from the Milestone 7
 // analytics feature) rather than building a new trends endpoint - this is purely a
 // compact preview; the full interactive view already lives at /analytics/trends.
-export function ReportTrendsSummaryCard({ currency, onSeeAll }: ReportTrendsSummaryCardProps) {
+export function ReportTrendsSummaryCard({ onSeeAll }: ReportTrendsSummaryCardProps) {
+  const currency = useCurrency();
   const { data, isLoading, isError } = useSpendingTrends('monthly');
 
   if (isLoading || isError || !data) {
@@ -38,7 +39,7 @@ export function ReportTrendsSummaryCard({ currency, onSeeAll }: ReportTrendsSumm
         label={`Averaging ${formatCurrency(data.averageDaily, currency)}/day`}
         invertColor={false}
       />
-      <TrendBarChart buckets={data.buckets} currency={currency} height={100} />
+      <TrendBarChart buckets={data.buckets} height={100} />
     </Card>
   );
 }

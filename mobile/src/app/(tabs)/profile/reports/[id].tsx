@@ -11,7 +11,6 @@ import { ReportTypeBadge } from '@/components/reports/report-type-badge';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
-import { useAuth } from '@/hooks/use-auth';
 import { useDeleteReport } from '@/hooks/use-delete-report';
 import { useExportReport } from '@/hooks/use-export-report';
 import { useReport } from '@/hooks/use-report';
@@ -23,8 +22,6 @@ import { getReportDateRangeLabel } from '@/utils/report';
 export default function ReportDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const reportId = Number(id);
-  const { user } = useAuth();
-  const currency = user?.profile.currency ?? '';
   const theme = useTheme();
 
   const { data: report, isLoading, isError, refetch } = useReport(reportId);
@@ -130,7 +127,7 @@ export default function ReportDetailScreen() {
             Loading summary statistics…
           </ThemedText>
         ) : viewData ? (
-          <ReportSummaryStats reportType={report.report_type} data={viewData} currency={currency} />
+          <ReportSummaryStats reportType={report.report_type} data={viewData} />
         ) : null}
 
         {rawDataVisible && viewData ? (

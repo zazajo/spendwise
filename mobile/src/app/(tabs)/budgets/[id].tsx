@@ -15,7 +15,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { DEFAULT_CATEGORY_ICON } from '@/constants/category-options';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
-import { useAuth } from '@/hooks/use-auth';
+import { useCurrency } from '@/hooks/use-currency';
 import { useBudget } from '@/hooks/use-budget';
 import { useBudgetExpenses } from '@/hooks/use-budget-expenses';
 import { useDeleteBudget } from '@/hooks/use-delete-budget';
@@ -36,8 +36,7 @@ const STATUS_COLOR_KEY: Record<BudgetStatusLevel, 'success' | 'warning' | 'dange
 export default function BudgetDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const budgetId = Number(id);
-  const { user } = useAuth();
-  const currency = user?.profile.currency ?? '';
+  const currency = useCurrency();
   const theme = useTheme();
 
   const { data: budget, isLoading, isError, refetch } = useBudget(budgetId);
@@ -170,7 +169,6 @@ export default function BudgetDetailScreen() {
                 <ExpenseListItem
                   key={expense.id}
                   expense={expense}
-                  currency={currency}
                   onPress={() =>
                     router.push({ pathname: '/expenses/[id]', params: { id: String(expense.id) } })
                   }

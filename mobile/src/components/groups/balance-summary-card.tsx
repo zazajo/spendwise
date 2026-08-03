@@ -3,15 +3,16 @@ import { StyleSheet } from 'react-native';
 import { Card } from '@/components/card';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import { useTheme } from '@/hooks/use-theme';
 import { formatCurrency } from '@/utils/format';
 
 type BalanceSummaryCardProps = {
   balance: number;
-  currency: string;
 };
 
-export function BalanceSummaryCard({ balance, currency }: BalanceSummaryCardProps) {
+export function BalanceSummaryCard({ balance }: BalanceSummaryCardProps) {
+  const currency = useCurrency();
   const theme = useTheme();
   const isSettled = Math.abs(balance) < 0.005;
   const isOwed = balance > 0;

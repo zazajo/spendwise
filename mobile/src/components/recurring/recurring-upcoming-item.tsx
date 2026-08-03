@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import { useTheme } from '@/hooks/use-theme';
 import type { RecurringExpense } from '@/types/recurring';
 import { formatCurrency } from '@/utils/format';
@@ -11,11 +12,11 @@ import { getDueUrgency } from '@/utils/recurring';
 
 type RecurringUpcomingItemProps = {
   recurring: RecurringExpense;
-  currency: string;
   onPress: () => void;
 };
 
-export function RecurringUpcomingItem({ recurring, currency, onPress }: RecurringUpcomingItemProps) {
+export function RecurringUpcomingItem({ recurring, onPress }: RecurringUpcomingItemProps) {
+  const currency = useCurrency();
   const theme = useTheme();
   const urgency = getDueUrgency(recurring.next_occurrence);
   const dueColor = urgency === 'overdue' ? theme.danger : urgency === 'due-soon' ? theme.warning : theme.text;

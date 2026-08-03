@@ -30,7 +30,6 @@ const EMPTY_BUDGET_OVERVIEW = {
 export default function HomeScreen() {
   const {
     user,
-    currency,
     greeting,
     monthSummary,
     recentExpenses,
@@ -84,13 +83,11 @@ export default function HomeScreen() {
 
           <MonthSummaryCard
             totalAmount={monthData.totalAmount}
-            currency={currency}
             expenseCount={monthData.expenseCount}
           />
 
           <BudgetProgressCard
             overview={budgetData}
-            currency={currency}
             onSetBudget={() => router.push('/budgets')}
           />
 
@@ -139,7 +136,6 @@ export default function HomeScreen() {
 
           <RecurringUpcomingCard
             items={recurringUpcoming}
-            currency={currency}
             onPress={() => router.push('/profile/recurring')}
           />
 
@@ -153,7 +149,6 @@ export default function HomeScreen() {
 
           <RecentExpensesSection
             expenses={recentExpenses}
-            currency={currency}
             onPressExpense={(id) =>
               router.push({ pathname: '/expenses/[id]', params: { id: String(id) } })
             }
@@ -161,7 +156,7 @@ export default function HomeScreen() {
             onAddExpense={() => router.push('/expenses/new')}
           />
 
-          <CategoryBreakdownSection categories={monthData.categories} currency={currency} />
+          <CategoryBreakdownSection categories={monthData.categories} />
         </ScrollView>
       </SafeAreaView>
     </ThemedView>

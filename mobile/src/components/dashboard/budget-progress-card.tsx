@@ -5,13 +5,13 @@ import { EmptyState } from '@/components/empty-state';
 import { ProgressBar } from '@/components/progress-bar';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import { useTheme } from '@/hooks/use-theme';
 import type { BudgetOverview } from '@/types/budget';
 import { formatCurrency } from '@/utils/format';
 
 type BudgetProgressCardProps = {
   overview: BudgetOverview;
-  currency: string;
   onSetBudget: () => void;
   emptyActionLabel?: string;
 };
@@ -32,10 +32,10 @@ const STATUS_LABEL: Record<BudgetOverview['status'], string> = {
 
 export function BudgetProgressCard({
   overview,
-  currency,
   onSetBudget,
   emptyActionLabel = 'Go to Budgets',
 }: BudgetProgressCardProps) {
+  const currency = useCurrency();
   const theme = useTheme();
 
   if (overview.budgetsCount === 0) {

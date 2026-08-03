@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/skeleton';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
-import { useAuth } from '@/hooks/use-auth';
+import { useCurrency } from '@/hooks/use-currency';
 import { useCategoryAnalysis } from '@/hooks/use-category-analysis';
 import { useTheme } from '@/hooks/use-theme';
 import { formatCurrency } from '@/utils/format';
@@ -20,8 +20,7 @@ const MONTH_FORMAT = new Intl.DateTimeFormat(undefined, { month: 'long', year: '
 
 export default function CategoryAnalysisScreen() {
   const theme = useTheme();
-  const { user } = useAuth();
-  const currency = user?.profile.currency ?? '';
+  const currency = useCurrency();
   const [monthDate, setMonthDate] = useState(() => new Date());
 
   const { data, isLoading, isError, isRefetching, refetch } = useCategoryAnalysis(monthDate);

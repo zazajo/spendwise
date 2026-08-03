@@ -3,13 +3,13 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Radius, Spacing } from '@/constants/theme';
+import { useCurrency } from '@/hooks/use-currency';
 import { useTheme } from '@/hooks/use-theme';
 import type { SuggestedSettlement } from '@/types/group';
 import { formatCurrency } from '@/utils/format';
 
 type SettlementSuggestionItemProps = {
   suggestion: SuggestedSettlement;
-  currency: string;
   canSettle: boolean;
   isSettling?: boolean;
   onSettle: () => void;
@@ -17,11 +17,11 @@ type SettlementSuggestionItemProps = {
 
 export function SettlementSuggestionItem({
   suggestion,
-  currency,
   canSettle,
   isSettling,
   onSettle,
 }: SettlementSuggestionItemProps) {
+  const currency = useCurrency();
   const theme = useTheme();
 
   return (

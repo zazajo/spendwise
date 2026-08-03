@@ -8,7 +8,6 @@ import type { Expense } from '@/types/expense';
 
 type RecentExpensesSectionProps = {
   expenses: Expense[];
-  currency: string;
   onPressExpense: (id: number) => void;
   onSeeAll: () => void;
   onAddExpense: () => void;
@@ -16,7 +15,6 @@ type RecentExpensesSectionProps = {
 
 export function RecentExpensesSection({
   expenses,
-  currency,
   onPressExpense,
   onSeeAll,
   onAddExpense,
@@ -38,7 +36,6 @@ export function RecentExpensesSection({
             <ExpenseListItem
               key={expense.id}
               expense={expense}
-              currency={currency}
               onPress={() => onPressExpense(expense.id)}
             />
           ))}

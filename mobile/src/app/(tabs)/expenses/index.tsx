@@ -12,7 +12,6 @@ import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
-import { useAuth } from '@/hooks/use-auth';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { useExpenseCategories } from '@/hooks/use-expense-categories';
 import { useExpenses } from '@/hooks/use-expenses';
@@ -20,9 +19,7 @@ import { useTheme } from '@/hooks/use-theme';
 import type { Expense } from '@/types/expense';
 
 export default function ExpensesListScreen() {
-  const { user } = useAuth();
   const theme = useTheme();
-  const currency = user?.profile.currency ?? '';
 
   const [searchInput, setSearchInput] = useState('');
   const search = useDebouncedValue(searchInput, 300);
@@ -125,7 +122,6 @@ export default function ExpensesListScreen() {
           renderItem={({ item }) => (
             <ExpenseListItem
               expense={item}
-              currency={currency}
               onPress={() =>
                 router.push({ pathname: '/expenses/[id]', params: { id: String(item.id) } })
               }

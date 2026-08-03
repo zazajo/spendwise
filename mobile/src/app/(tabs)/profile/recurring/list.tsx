@@ -13,7 +13,6 @@ import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
-import { useAuth } from '@/hooks/use-auth';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { useExpenseCategories } from '@/hooks/use-expense-categories';
 import { useRecurringBatchAction } from '@/hooks/use-recurring-batch-action';
@@ -51,9 +50,7 @@ function sortItems(items: RecurringExpense[], sort: RecurringSortKey): Recurring
 }
 
 export default function RecurringListScreen() {
-  const { user } = useAuth();
   const theme = useTheme();
-  const currency = user?.profile.currency ?? '';
   const params = useLocalSearchParams<{ status?: RecurringLifecycleStatus }>();
 
   const [searchInput, setSearchInput] = useState('');
@@ -224,7 +221,6 @@ export default function RecurringListScreen() {
           renderItem={({ item }) => (
             <RecurringCard
               recurring={item}
-              currency={currency}
               categoryColor={categoryLookup.get(item.category)?.color}
               categoryIcon={categoryLookup.get(item.category)?.icon}
               selectionMode={selectionMode}
