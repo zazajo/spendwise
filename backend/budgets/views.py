@@ -22,8 +22,9 @@ class BudgetViewSet(viewsets.ModelViewSet):
     ordering = ['start_date']
 
     def get_queryset(self):
-        queryset = Budget.objects.filter(user=self.request.user)
-        
+        # BudgetSerializer nests CategorySerializer, so join it up front.
+        queryset = Budget.objects.filter(user=self.request.user).select_related('category')
+
         # Filter by active status
         if self.request.query_params.get('active_only') == 'true':
             queryset = queryset.filter(is_active=True)

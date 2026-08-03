@@ -31,7 +31,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         ).annotate(
             member_count=Count('members', distinct=True),
             total_expenses=Sum('group_expenses__amount')
-        ).prefetch_related('members', 'groupmembership_set__user')
+        ).select_related('created_by').prefetch_related('members', 'groupmembership_set__user')
 
     def get_permissions(self):
         """Add additional permissions for specific actions"""

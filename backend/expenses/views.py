@@ -56,8 +56,13 @@ class ExpenseViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Filter expenses to current user only"""
-        queryset = Expense.objects.filter(user=self.request.user)
-        
+        # ExpenseSerializer reads user.username, category (nested serializer),
+        # and payment_method.name, so without these joins a list page costs
+        # three extra queries per row.
+        queryset = Expense.objects.filter(user=self.request.user).select_related(
+            'user', 'category', 'payment_method'
+        )
+
         # Date filtering
         start_date = self.request.query_params.get('start_date')
         end_date = self.request.query_params.get('end_date')

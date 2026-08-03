@@ -27,7 +27,10 @@ class RecurringExpenseViewSet(CsrfExemptViewSet):
     ordering = ['next_occurrence']
 
     def get_queryset(self):
-        return RecurringExpense.objects.filter(user=self.request.user)
+        # Serializer reads category.name and payment_method.name per row.
+        return RecurringExpense.objects.filter(user=self.request.user).select_related(
+            'category', 'payment_method'
+        )
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

@@ -31,13 +31,15 @@ class GroupSerializer(serializers.ModelSerializer):
     
     def get_is_admin(self, obj):
         request = self.context.get('request')
-        if request and request.user:
-            membership = GroupMembership.objects.filter(
-                group=obj, 
-                user=request.user
-            ).first()
-            return membership and membership.role == 'admin'
-        return False
+        if not (request and request.user and request.user.is_authenticated):
+            return False
+        # groupmembership_set is already prefetched by GroupViewSet.get_queryset,
+        # so scan it in Python - querying here costs one extra round trip per
+        # group in the list response.
+        return any(
+            membership.user_id == request.user.id and membership.role == 'admin'
+            for membership in obj.groupmembership_set.all()
+        )
     
     def create(self, validated_data):
         validated_data['created_by'] = self.context['request'].user
