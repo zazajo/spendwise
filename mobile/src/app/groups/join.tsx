@@ -11,6 +11,7 @@ import { useJoinGroup } from '@/hooks/use-join-group';
 import { useTheme } from '@/hooks/use-theme';
 import { showToast } from '@/hooks/use-toast';
 import { joinGroupSchema, type JoinGroupFormValues } from '@/types/group';
+import { getApiErrorMessage } from '@/utils/api-error';
 
 export default function JoinGroupScreen() {
   const theme = useTheme();
@@ -35,8 +36,7 @@ export default function JoinGroupScreen() {
   }
 
   const serverError =
-    joinGroup.isError && (joinGroup.error as { response?: { data?: { error?: string } } })?.response?.data
-      ?.error;
+    joinGroup.isError && getApiErrorMessage(joinGroup.error, "Couldn't join that group.");
 
   return (
     <ThemedView style={{ flex: 1 }}>

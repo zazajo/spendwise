@@ -6,6 +6,7 @@ from decimal import Decimal
 import statistics
 from expenses.models import Expense
 from budgets.models import Budget
+from spendwise.date_ranges import month_offset, month_start, previous_month_bounds
 from .models import SpendingPattern, AnomalyRule, FinancialHealthMetric
 
 
@@ -169,8 +170,8 @@ class AnalyticsService:
     def calculate_financial_health(self):
         """Calculate financial health score"""
         today = timezone.now().date()
-        first_day_of_month = today.replace(day=1)
-        
+        first_day_of_month = month_start(today)
+
         # Get this month's expenses
         expenses_this_month = Expense.objects.filter(
             user=self.user,
@@ -226,12 +227,11 @@ class AnalyticsService:
             savings_score = 50
         
         # 4. Expense Consistency Score
-        last_month = first_day_of_month - timedelta(days=1)
-        last_month_start = last_month.replace(day=1)
+        last_month_start, last_month_end = previous_month_bounds(today)
         last_month_expenses = Expense.objects.filter(
             user=self.user,
             date__gte=last_month_start,
-            date__lte=last_month
+            date__lte=last_month_end
         ).aggregate(Sum('amount'))['amount__sum'] or Decimal('0')
         
         if last_month_expenses > 0:
@@ -282,14 +282,11 @@ class AnalyticsService:
         today = timezone.now().date()
         
         for i in range(months):
-            month_start = today.replace(day=1) - timedelta(days=30 * i)
-            month_start = month_start.replace(day=1)
-            
-            if month_start.month == 12:
-                month_end = month_start.replace(year=month_start.year + 1, month=1, day=1) - timedelta(days=1)
-            else:
-                month_end = month_start.replace(month=month_start.month + 1, day=1) - timedelta(days=1)
-            
+            # Step back whole calendar months. Subtracting 30-day blocks drifts
+            # and can skip a short month entirely (from 1 March, i=1 lands in
+            # January, dropping February from the series).
+            month_start, month_end = month_offset(today, i)
+
             expenses = Expense.objects.filter(
                 user=self.user,
                 date__gte=month_start,

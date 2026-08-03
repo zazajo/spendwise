@@ -23,6 +23,7 @@ import { useGroupExpenses } from '@/hooks/use-group-expenses';
 import { useLeaveGroup } from '@/hooks/use-leave-group';
 import { useTheme } from '@/hooks/use-theme';
 import { showToast } from '@/hooks/use-toast';
+import { getApiErrorMessage } from '@/utils/api-error';
 import { computeNetBalance, memberDisplayName } from '@/utils/group';
 
 const MAX_PREVIEW_AVATARS = 5;
@@ -192,10 +193,7 @@ export default function GroupDetailScreen() {
               router.replace('/groups');
             },
             onError: (error: unknown) => {
-              const message =
-                (error as { response?: { data?: { error?: string } } })?.response?.data?.error ??
-                "Couldn't leave the group.";
-              showToast(message);
+              showToast(getApiErrorMessage(error, "Couldn't leave the group."));
               setConfirmLeaveOpen(false);
             },
           });

@@ -6,6 +6,7 @@ from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
 from rest_framework.permissions import IsAuthenticated
+from spendwise.date_ranges import month_start
 from spendwise.permissions import IsOwner
 from .models import PaymentMethod, Expense
 from .serializers import (
@@ -126,7 +127,7 @@ class ExpenseViewSet(viewsets.ModelViewSet):
         
         # Daily totals for the current month
         today = timezone.now().date()
-        first_day = today.replace(day=1)
+        first_day = month_start(today)
         daily_totals = queryset.filter(
             date__gte=first_day,
             date__lte=today

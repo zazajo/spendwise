@@ -20,6 +20,7 @@ import { useRemoveMember } from '@/hooks/use-remove-member';
 import { useTheme } from '@/hooks/use-theme';
 import { showToast } from '@/hooks/use-toast';
 import type { GroupMembership } from '@/types/group';
+import { getApiErrorMessage } from '@/utils/api-error';
 
 export default function GroupMembersScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -67,10 +68,7 @@ export default function GroupMembersScreen() {
           setUsername('');
         },
         onError: (error: unknown) => {
-          const message =
-            (error as { response?: { data?: { error?: string } } })?.response?.data?.error ??
-            "Couldn't add that member.";
-          showToast(message);
+          showToast(getApiErrorMessage(error, "Couldn't add that member."));
         },
       }
     );

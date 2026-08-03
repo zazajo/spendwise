@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from django.db.models import Sum
+from spendwise.date_ranges import month_start, previous_month_bounds
 from spendwise.permissions import IsOwner
 from .models import SpendingPattern, AnomalyRule, FinancialHealthMetric
 from .serializers import (
@@ -56,20 +57,19 @@ class AnalyticsViewSet(viewsets.GenericViewSet):
         
         # Calculate monthly summary
         today = timezone.now().date()
-        first_day = today.replace(day=1)
+        first_day = month_start(today)
         monthly_expenses = Expense.objects.filter(
             user=request.user,
             date__gte=first_day,
             date__lte=today
         ).aggregate(Sum('amount'))['amount__sum'] or 0
-        
+
         # Compare with last month
-        last_month = first_day - timezone.timedelta(days=1)
-        last_month_start = last_month.replace(day=1)
+        last_month_start, last_month_end = previous_month_bounds(today)
         last_month_expenses = Expense.objects.filter(
             user=request.user,
             date__gte=last_month_start,
-            date__lte=last_month
+            date__lte=last_month_end
         ).aggregate(Sum('amount'))['amount__sum'] or 0
         
         monthly_change = 0
@@ -198,22 +198,19 @@ class AnalyticsViewSet(viewsets.GenericViewSet):
         year = request.query_params.get('year')
         month = request.query_params.get('month')
         
-        from datetime import datetime, timedelta
         from django.db.models import Sum, Count
         from django.utils import timezone
+
+        from spendwise.date_ranges import month_bounds, month_start
 
         today = timezone.now().date()
         if year and month:
             year, month = int(year), int(month)
-            start_date = datetime(year, month, 1).date()
-            if month == 12:
-                end_date = datetime(year + 1, 1, 1).date() - timedelta(days=1)
-            else:
-                end_date = datetime(year, month + 1, 1).date() - timedelta(days=1)
+            start_date, end_date = month_bounds(year, month)
         else:
-            start_date = today.replace(day=1)
+            start_date = month_start(today)
             end_date = today
-        
+
         category_spending = Expense.objects.filter(
             user=request.user,
             date__gte=start_date,
