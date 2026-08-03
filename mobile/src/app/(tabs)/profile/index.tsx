@@ -56,6 +56,18 @@ export default function ProfileScreen() {
         </Pressable>
 
         <Pressable
+          onPress={() => router.push('/profile/reports')}
+          style={({ pressed }) => [styles.navRow, pressed && styles.pressed]}>
+          <ThemedView type="backgroundElement" style={styles.navRowInner}>
+            <View style={styles.navRowLeft}>
+              <Ionicons name="document-text-outline" size={20} color={theme.text} />
+              <ThemedText type="smallBold">Reports</ThemedText>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+          </ThemedView>
+        </Pressable>
+
+        <Pressable
           disabled={logout.isPending}
           onPress={() => logout.mutate()}
           style={({ pressed }) => [styles.button, pressed && styles.pressed]}>

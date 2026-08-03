@@ -124,7 +124,7 @@ class ReportService:
                 'total': cat_total,
                 'percentage': percentage,
                 'transaction_count': cat_expenses.count(),
-                'average_amount': cat_expenses.aggregate(Avg('amount'))['amount__sum'] or 0
+                'average_amount': cat_expenses.aggregate(Avg('amount'))['amount__avg'] or 0
             })
         
         # Sort by total descending

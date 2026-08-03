@@ -6,6 +6,7 @@ import { useExpenseSummary } from '@/hooks/use-expense-summary';
 import { useGroups } from '@/hooks/use-groups';
 import { useRecentExpenses } from '@/hooks/use-recent-expenses';
 import { useRecurringDashboard } from '@/hooks/use-recurring-dashboard';
+import { useReports } from '@/hooks/use-reports';
 import { formatGreetingTime, toISODateString } from '@/utils/format';
 
 export function useDashboard() {
@@ -25,6 +26,7 @@ export function useDashboard() {
   // fetch for either shouldn't block or error out the rest of the dashboard.
   const groups = useGroups({});
   const recurring = useRecurringDashboard();
+  const reports = useReports({ ordering: '-created_at' });
 
   const refetchAll = useCallback(() => {
     return Promise.all([
@@ -33,8 +35,9 @@ export function useDashboard() {
       budget.refetch(),
       groups.refetch(),
       recurring.refetch(),
+      reports.refetch(),
     ]);
-  }, [summary, recent, budget, groups, recurring]);
+  }, [summary, recent, budget, groups, recurring, reports]);
 
   return {
     user,
@@ -48,6 +51,7 @@ export function useDashboard() {
     recurringUpcoming: [...(recurring.data?.overdue ?? []), ...(recurring.data?.upcoming_this_month ?? [])]
       .sort((a, b) => a.next_occurrence.localeCompare(b.next_occurrence))
       .slice(0, 3),
+    latestReport: reports.data?.[0],
     isLoading: summary.isLoading || recent.isLoading || budget.isLoading,
     isError: summary.isError || recent.isError || budget.isError,
     isRefetching: summary.isRefetching || recent.isRefetching || budget.isRefetching,

@@ -7,6 +7,7 @@ import { CategoryBreakdownSection } from '@/components/dashboard/category-breakd
 import { DashboardSkeleton } from '@/components/dashboard/dashboard-skeleton';
 import { GreetingHeader } from '@/components/dashboard/greeting-header';
 import { GroupsSummaryCard } from '@/components/dashboard/groups-summary-card';
+import { LatestReportCard } from '@/components/dashboard/latest-report-card';
 import { MonthSummaryCard } from '@/components/dashboard/month-summary-card';
 import { QuickActions } from '@/components/dashboard/quick-actions';
 import { RecentExpensesSection } from '@/components/dashboard/recent-expenses-section';
@@ -36,6 +37,7 @@ export default function HomeScreen() {
     budgetOverview,
     groups,
     recurringUpcoming,
+    latestReport,
     isLoading,
     isError,
     isRefetching,
@@ -114,6 +116,12 @@ export default function HomeScreen() {
                 icon: 'repeat-outline',
                 onPress: () => router.push('/profile/recurring'),
               },
+              {
+                key: 'reports',
+                label: 'Reports',
+                icon: 'document-text-outline',
+                onPress: () => router.push('/profile/reports'),
+              },
             ]}
           />
 
@@ -123,6 +131,14 @@ export default function HomeScreen() {
             items={recurringUpcoming}
             currency={currency}
             onPress={() => router.push('/profile/recurring')}
+          />
+
+          <LatestReportCard
+            report={latestReport}
+            onPress={() =>
+              latestReport &&
+              router.push({ pathname: '/profile/reports/[id]', params: { id: String(latestReport.id) } })
+            }
           />
 
           <RecentExpensesSection

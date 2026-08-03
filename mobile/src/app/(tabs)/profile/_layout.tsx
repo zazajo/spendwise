@@ -19,6 +19,19 @@ export default function ProfileLayout() {
         name="recurring/edit/[id]"
         options={{ title: 'Edit Recurring Expense', presentation: 'modal' }}
       />
+      <Stack.Screen name="reports/index" options={{ title: 'Reports' }} />
+      <Stack.Screen name="reports/history" options={{ title: 'Financial History' }} />
+      <Stack.Screen name="reports/new" options={{ title: 'Generate Report', presentation: 'modal' }} />
+      <Stack.Screen name="reports/[id]" options={{ title: 'Report' }} />
+      <Stack.Screen name="reports/scheduled/index" options={{ title: 'Scheduled Reports' }} />
+      <Stack.Screen
+        name="reports/scheduled/new"
+        options={{ title: 'New Scheduled Report', presentation: 'modal' }}
+      />
+      <Stack.Screen
+        name="reports/scheduled/edit/[id]"
+        options={{ title: 'Edit Scheduled Report', presentation: 'modal' }}
+      />
     </Stack>
   );
 }
