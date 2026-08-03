@@ -145,15 +145,9 @@ class AnalyticsViewSet(viewsets.GenericViewSet):
         from categories.models import Category
         categories_qs = Category.objects.filter(user=request.user)
         
-        print(f"\n=== Update Patterns Called ===")
-        print(f"User: {request.user.username}")
-        print(f"Period: {period}")
-        print(f"Total categories: {categories_qs.count()}")
-        
         if categories:
             categories_qs = categories_qs.filter(id__in=categories)
-            print(f"Filtered to: {categories_qs.count()} categories")
-        
+
         if not categories_qs.exists():
             return Response({
                 'message': 'No categories found. Please create a category first.',
@@ -164,35 +158,28 @@ class AnalyticsViewSet(viewsets.GenericViewSet):
         patterns_created = []
         
         for category in categories_qs:
-            print(f"\n--- Processing category: {category.name} (ID: {category.id}) ---")
-            
             # Get the pattern data without 'expense_count'
             pattern_data = service.calculate_simple_pattern(category=category, period=period)
-            
+
             # Remove 'expense_count' if it exists in the data
             if 'expense_count' in pattern_data:
                 del pattern_data['expense_count']
-            
-            print(f"Pattern data: {pattern_data}")
-            
+
             # Create or update the pattern
-            pattern, created = SpendingPattern.objects.update_or_create(
+            _, created = SpendingPattern.objects.update_or_create(
                 user=request.user,
                 category=category,
                 period=period,
                 defaults=pattern_data
             )
-            
-            status_text = "created" if created else "updated"
-            print(f"Pattern {status_text} successfully")
-            
+
             patterns_created.append({
                 'category': category.name,
                 'category_id': category.id,
                 'period': period,
                 'average_amount': pattern_data.get('average_amount', 0),
                 'frequency': pattern_data.get('frequency', 0),
-                'status': status_text
+                'status': 'created' if created else 'updated'
             })
         
         total_expenses = Expense.objects.filter(user=request.user).count()

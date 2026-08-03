@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { fetchReportViewData } from '@/services/reports';
-import type { Report } from '@/types/reports';
+import type { Report } from '@/types/report';
 
 export function useReportViewData(report: Report | undefined) {
   return useQuery({

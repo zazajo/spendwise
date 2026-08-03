@@ -18,7 +18,7 @@ import { useReport } from '@/hooks/use-report';
 import { useReportViewData } from '@/hooks/use-report-view-data';
 import { useTheme } from '@/hooks/use-theme';
 import { showToast } from '@/hooks/use-toast';
-import { getReportDateRangeLabel } from '@/utils/reports';
+import { getReportDateRangeLabel } from '@/utils/report';
 
 export default function ReportDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

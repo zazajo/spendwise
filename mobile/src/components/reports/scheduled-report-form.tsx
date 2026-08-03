@@ -13,7 +13,7 @@ import {
   type ReportType,
   type ScheduledReportFormValues,
   type ScheduledReportFrequency,
-} from '@/types/reports';
+} from '@/types/report';
 
 const TYPE_OPTIONS: ReportType[] = ['monthly_summary', 'category_analysis', 'budget_variance'];
 const FORMAT_OPTIONS: { value: 'json' | 'csv'; label: string }[] = [

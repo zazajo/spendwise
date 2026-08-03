@@ -1,7 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 
 import { API_BASE_URL } from '@/constants/config';
-import { clearStoredTokens, getStoredTokens, setStoredTokens } from '@/services/tokenStorage';
+import { clearStoredTokens, getStoredTokens, setStoredTokens } from '@/services/token-storage';
 
 // Without a timeout, a dead/unreachable backend leaves requests hanging on
 // the OS's own TCP timeout (which can be 60s+, especially if a firewall

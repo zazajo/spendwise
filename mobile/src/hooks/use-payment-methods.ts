@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { fetchPaymentMethods } from '@/services/paymentMethods';
+import { fetchPaymentMethods } from '@/services/payment-methods';
 
 export function usePaymentMethods() {
   return useQuery({

@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { REPORT_TYPE_LABEL, type ReportType } from '@/types/reports';
+import { REPORT_TYPE_LABEL, type ReportType } from '@/types/report';
 
 type ReportTypeBadgeProps = {
   reportType: ReportType;

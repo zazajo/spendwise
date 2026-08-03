@@ -1,5 +1,5 @@
 import { api, setAccessToken } from '@/services/api';
-import { setStoredTokens } from '@/services/tokenStorage';
+import { setStoredTokens } from '@/services/token-storage';
 import type { LoginPayload, LoginResponse, RegisterPayload, RegisterResponse, User } from '@/types/auth';
 
 export async function login(payload: LoginPayload): Promise<LoginResponse> {

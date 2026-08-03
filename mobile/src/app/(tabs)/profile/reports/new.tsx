@@ -17,7 +17,7 @@ import {
   REPORT_TYPE_LABEL,
   type GenerateReportFormValues,
   type ReportType,
-} from '@/types/reports';
+} from '@/types/report';
 import { toISODateString } from '@/utils/format';
 
 const TYPE_OPTIONS: { value: ReportType; label: string }[] = [

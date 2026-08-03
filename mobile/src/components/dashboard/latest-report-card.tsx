@@ -6,8 +6,8 @@ import { ReportTypeBadge } from '@/components/reports/report-type-badge';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import type { Report } from '@/types/reports';
-import { getReportDateRangeLabel } from '@/utils/reports';
+import type { Report } from '@/types/report';
+import { getReportDateRangeLabel } from '@/utils/report';
 
 type LatestReportCardProps = {
   report: Report | undefined;

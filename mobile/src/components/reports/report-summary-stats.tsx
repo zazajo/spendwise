@@ -12,7 +12,7 @@ import type {
   MonthlySummaryData,
   ReportData,
   ReportType,
-} from '@/types/reports';
+} from '@/types/report';
 import { formatCurrency } from '@/utils/format';
 
 type ReportSummaryStatsProps = {

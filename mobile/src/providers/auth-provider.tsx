@@ -3,7 +3,7 @@ import { createContext, useEffect, useMemo, useState, type PropsWithChildren } f
 
 import { setAccessToken, setSessionExpiredHandler } from '@/services/api';
 import * as authService from '@/services/auth';
-import { clearStoredTokens, getStoredTokens } from '@/services/tokenStorage';
+import { clearStoredTokens, getStoredTokens } from '@/services/token-storage';
 import type { LoginPayload, RegisterPayload, User } from '@/types/auth';
 
 type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';

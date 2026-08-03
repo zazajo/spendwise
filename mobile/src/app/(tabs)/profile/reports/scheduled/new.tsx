@@ -5,7 +5,7 @@ import { ThemedView } from '@/components/themed-view';
 import { useAuth } from '@/hooks/use-auth';
 import { useCreateScheduledReport } from '@/hooks/use-create-scheduled-report';
 import { showToast } from '@/hooks/use-toast';
-import type { ScheduledReportFormValues } from '@/types/reports';
+import type { ScheduledReportFormValues } from '@/types/report';
 
 export default function NewScheduledReportScreen() {
   const { user } = useAuth();

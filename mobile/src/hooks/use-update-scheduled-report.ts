@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { updateScheduledReport } from '@/services/reports';
-import type { ScheduledReportFormValues } from '@/types/reports';
+import type { ScheduledReportFormValues } from '@/types/report';
 
 export function useUpdateScheduledReport(id: number) {
   const queryClient = useQueryClient();

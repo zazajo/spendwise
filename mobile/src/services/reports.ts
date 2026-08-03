@@ -11,7 +11,7 @@ import type {
   ReportListParams,
   ScheduledReport,
   ScheduledReportFormValues,
-} from '@/types/reports';
+} from '@/types/report';
 
 export async function fetchReports(params: ReportListParams = {}): Promise<Report[]> {
   const { data } = await api.get<PaginatedResponse<Report>>('/reports/', {

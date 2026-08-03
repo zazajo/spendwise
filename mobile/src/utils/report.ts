@@ -1,4 +1,4 @@
-import type { Report } from '@/types/reports';
+import type { Report } from '@/types/report';
 
 // start_date/end_date arrive as "YYYY-MM-DD"; parsing with a T00:00:00 suffix keeps
 // this in the local timezone, matching the same fix used in utils/budget.ts.

@@ -13,7 +13,7 @@ import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { useReports } from '@/hooks/use-reports';
 import { useTheme } from '@/hooks/use-theme';
-import { REPORT_TYPE_LABEL, type Report, type ReportType } from '@/types/reports';
+import { REPORT_TYPE_LABEL, type Report, type ReportType } from '@/types/report';
 
 const TYPE_OPTIONS: ReportType[] = ['monthly_summary', 'category_analysis', 'budget_variance'];
 

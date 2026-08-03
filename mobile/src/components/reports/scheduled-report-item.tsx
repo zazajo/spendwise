@@ -6,7 +6,7 @@ import { ReportTypeBadge } from '@/components/reports/report-type-badge';
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { SCHEDULED_FREQUENCY_LABEL, type ScheduledReport } from '@/types/reports';
+import { SCHEDULED_FREQUENCY_LABEL, type ScheduledReport } from '@/types/report';
 
 type ScheduledReportItemProps = {
   scheduledReport: ScheduledReport;

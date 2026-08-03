@@ -6,7 +6,7 @@ import { ThemedView } from '@/components/themed-view';
 import { useScheduledReport } from '@/hooks/use-scheduled-report';
 import { useUpdateScheduledReport } from '@/hooks/use-update-scheduled-report';
 import { showToast } from '@/hooks/use-toast';
-import type { ScheduledReportFormValues } from '@/types/reports';
+import type { ScheduledReportFormValues } from '@/types/report';
 
 export default function EditScheduledReportScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
