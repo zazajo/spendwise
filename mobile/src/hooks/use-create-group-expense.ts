@@ -7,11 +7,10 @@ export function useCreateGroupExpense() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: GroupExpensePayload) => createGroupExpense(payload),
-    onSuccess: (expense) => {
-      queryClient.invalidateQueries({ queryKey: ['group-expenses'] });
-      queryClient.invalidateQueries({ queryKey: ['groups', 'balance', expense.group] });
-      queryClient.invalidateQueries({ queryKey: ['groups', 'detail', expense.group] });
-      queryClient.invalidateQueries({ queryKey: ['groups', 'list'] });
+    onSuccess: () => {
+      // Every group query lives under ['groups'], so one invalidation covers
+      // the list, detail, balances, expenses, and settlements.
+      queryClient.invalidateQueries({ queryKey: ['groups'] });
     },
   });
 }

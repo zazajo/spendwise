@@ -7,9 +7,9 @@ export function useRemoveMember(groupId: number) {
   return useMutation({
     mutationFn: (userId: number) => removeMember(groupId, userId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['groups', 'detail', groupId] });
-      queryClient.invalidateQueries({ queryKey: ['groups', 'list'] });
-      queryClient.invalidateQueries({ queryKey: ['groups', 'balance', groupId] });
+      // Every group query lives under ['groups'], so one invalidation covers
+      // the list, detail, balances, expenses, and settlements.
+      queryClient.invalidateQueries({ queryKey: ['groups'] });
     },
   });
 }

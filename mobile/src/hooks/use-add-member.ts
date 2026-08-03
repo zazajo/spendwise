@@ -9,8 +9,9 @@ export function useAddMember(groupId: number) {
     mutationFn: ({ username, role }: { username: string; role?: MemberRole }) =>
       addMember(groupId, username, role),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['groups', 'detail', groupId] });
-      queryClient.invalidateQueries({ queryKey: ['groups', 'list'] });
+      // Every group query lives under ['groups'], so one invalidation covers
+      // the list, detail, balances, expenses, and settlements.
+      queryClient.invalidateQueries({ queryKey: ['groups'] });
     },
   });
 }

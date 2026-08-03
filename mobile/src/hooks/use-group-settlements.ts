@@ -4,7 +4,7 @@ import { fetchGroupSettlements } from '@/services/groups';
 
 export function useGroupSettlements(groupId: number) {
   return useQuery({
-    queryKey: ['group-settlements', groupId],
+    queryKey: ['groups', 'settlements', groupId],
     queryFn: () => fetchGroupSettlements(groupId),
     enabled: Number.isFinite(groupId),
   });

@@ -4,7 +4,7 @@ import { fetchGroupExpense } from '@/services/groups';
 
 export function useGroupExpense(id: number) {
   return useQuery({
-    queryKey: ['group-expenses', 'detail', id],
+    queryKey: ['groups', 'expenses', 'detail', id],
     queryFn: () => fetchGroupExpense(id),
     enabled: Number.isFinite(id),
   });

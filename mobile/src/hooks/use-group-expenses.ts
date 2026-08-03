@@ -5,7 +5,7 @@ import type { GroupExpenseListParams } from '@/types/group';
 
 export function useGroupExpenses(params: GroupExpenseListParams) {
   return useQuery({
-    queryKey: ['group-expenses', 'list', params],
+    queryKey: ['groups', 'expenses', 'list', params],
     queryFn: () => fetchGroupExpenses(params),
   });
 }

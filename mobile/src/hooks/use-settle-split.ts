@@ -8,8 +8,9 @@ export function useSettleSplit(groupId: number) {
     mutationFn: ({ expenseId, splitId }: { expenseId: number; splitId: number }) =>
       settleSplit(expenseId, splitId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['group-expenses'] });
-      queryClient.invalidateQueries({ queryKey: ['groups', 'balance', groupId] });
+      // Every group query lives under ['groups'], so one invalidation covers
+      // the list, detail, balances, expenses, and settlements.
+      queryClient.invalidateQueries({ queryKey: ['groups'] });
     },
   });
 }
