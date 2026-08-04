@@ -7,7 +7,7 @@ export function useMarkAlertRead() {
   return useMutation({
     mutationFn: (id: number) => markBudgetAlertRead(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['budget-alerts'] });
+      queryClient.invalidateQueries({ queryKey: ['budgets', 'alerts'] });
     },
   });
 }
@@ -17,7 +17,7 @@ export function useMarkAllAlertsRead() {
   return useMutation({
     mutationFn: markAllBudgetAlertsRead,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['budget-alerts'] });
+      queryClient.invalidateQueries({ queryKey: ['budgets', 'alerts'] });
     },
   });
 }

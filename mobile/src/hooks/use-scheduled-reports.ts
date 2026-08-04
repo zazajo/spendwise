@@ -4,7 +4,7 @@ import { fetchScheduledReports } from '@/services/reports';
 
 export function useScheduledReports() {
   return useQuery({
-    queryKey: ['scheduled-reports', 'list'],
+    queryKey: ['reports', 'scheduled', 'list'],
     queryFn: fetchScheduledReports,
   });
 }

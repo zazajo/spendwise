@@ -7,7 +7,7 @@ export function useCreateScheduledReport() {
   return useMutation({
     mutationFn: createScheduledReport,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['scheduled-reports'] });
+      queryClient.invalidateQueries({ queryKey: ['reports', 'scheduled'] });
     },
   });
 }

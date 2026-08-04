@@ -20,12 +20,14 @@ function monthBounds(monthDate: Date) {
 
 // Deliberately built on /expenses/summary/ (already used elsewhere) rather than the
 // analytics category_analysis action, which 500s for explicit year/month on any
-// month shorter than 31 days - see services/analytics.ts for details.
+// month shorter than 31 days - see services/analytics.ts for details. Since it is
+// the same request useExpenseSummary makes, it shares that key and differs only in
+// how it reshapes the response.
 export function useCategoryAnalysis(monthDate: Date) {
   const { start, end } = monthBounds(monthDate);
 
   return useQuery({
-    queryKey: ['analytics', 'category-analysis', start, end],
+    queryKey: ['expenses', 'summary', { start_date: start, end_date: end }],
     queryFn: () => fetchExpenseSummary({ start_date: start, end_date: end }),
     select: (data): CategoryAnalysis => {
       const categories = mapCategoryBreakdown(data);

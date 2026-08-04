@@ -8,7 +8,7 @@ export function useUpdateScheduledReport(id: number) {
   return useMutation({
     mutationFn: (values: ScheduledReportFormValues) => updateScheduledReport(id, values),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['scheduled-reports'] });
+      queryClient.invalidateQueries({ queryKey: ['reports', 'scheduled'] });
     },
   });
 }

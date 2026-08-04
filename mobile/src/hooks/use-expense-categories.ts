@@ -4,7 +4,7 @@ import { fetchExpenseCategories } from '@/services/categories';
 
 export function useExpenseCategories() {
   return useQuery({
-    queryKey: ['categories', 'expense'],
+    queryKey: ['categories', 'by-type', 'expense'],
     queryFn: fetchExpenseCategories,
     staleTime: 5 * 60_000,
   });

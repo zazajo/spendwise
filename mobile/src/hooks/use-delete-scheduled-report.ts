@@ -7,7 +7,7 @@ export function useDeleteScheduledReport() {
   return useMutation({
     mutationFn: (id: number) => deleteScheduledReport(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['scheduled-reports'] });
+      queryClient.invalidateQueries({ queryKey: ['reports', 'scheduled'] });
     },
   });
 }

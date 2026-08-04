@@ -11,7 +11,6 @@ export function useRefreshHealthScore() {
       queryClient.setQueryData<AnalyticsDashboardResponse>(['analytics', 'dashboard'], (current) =>
         current ? { ...current, financial_health: metric } : current
       );
-      queryClient.invalidateQueries({ queryKey: ['analytics', 'health-history'] });
     },
   });
 }

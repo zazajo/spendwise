@@ -8,7 +8,7 @@ export function useSetScheduledReportActive() {
     mutationFn: ({ id, isActive }: { id: number; isActive: boolean }) =>
       setScheduledReportActive(id, isActive),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['scheduled-reports'] });
+      queryClient.invalidateQueries({ queryKey: ['reports', 'scheduled'] });
     },
   });
 }
