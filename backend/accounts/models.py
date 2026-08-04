@@ -6,6 +6,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     currency = models.CharField(max_length=3, default='NGN')
     monthly_income = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     financial_health_score = models.IntegerField(

@@ -1,5 +1,6 @@
-from rest_framework import generics, permissions, viewsets
+from rest_framework import generics, permissions, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -10,7 +11,7 @@ from .models import Profile, UserPreference
 from .serializers import (
     UserSerializer, UserRegistrationSerializer, UserUpdateSerializer,
     ProfileSerializer, UserPreferenceSerializer, UserDetailSerializer,
-    MobileTokenObtainPairSerializer,
+    MobileTokenObtainPairSerializer, ChangePasswordSerializer,
 )
 from spendwise.permissions import IsOwner
 
@@ -100,7 +101,9 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, methods=['get'])
     def me(self, request):
         """Get current user details"""
-        serializer = UserDetailSerializer(request.user)
+        # Context matters: without the request, the nested profile's avatar
+        # serializes to a site-relative path the mobile client can't resolve.
+        serializer = UserDetailSerializer(request.user, context={'request': request})
         return Response(serializer.data)
 
     @action(detail=False, methods=['patch'])
@@ -109,8 +112,22 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(UserDetailSerializer(request.user).data)
+            return Response(UserDetailSerializer(request.user, context={'request': request}).data)
         return Response(serializer.errors, status=400)
+
+    @action(detail=False, methods=['post'])
+    def change_password(self, request):
+        """Change the current user's password, given their current one.
+
+        The access token keeps working afterwards - JWTs aren't tied to the
+        password hash - so the user isn't kicked out of the app mid-session.
+        Other devices also stay signed in; 'Log out of all devices' is the
+        existing action for ending those.
+        """
+        serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'message': 'Password changed successfully'})
 
 
 class ProfileViewSet(viewsets.ModelViewSet):
@@ -134,6 +151,37 @@ class ProfileViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
+
+    @action(
+        detail=False, methods=['post', 'delete'],
+        parser_classes=[MultiPartParser, FormParser],
+    )
+    def avatar(self, request):
+        """Upload (POST) or clear (DELETE) the current user's profile picture."""
+        profile = request.user.profile
+
+        if request.method == 'DELETE':
+            if profile.avatar:
+                # Drop the file itself, not just the reference, so removed
+                # avatars don't accumulate in MEDIA_ROOT forever.
+                profile.avatar.delete(save=False)
+                profile.avatar = None
+                profile.save(update_fields=['avatar'])
+            return Response(self.get_serializer(profile).data)
+
+        uploaded = request.FILES.get('avatar')
+        if not uploaded:
+            return Response(
+                {'avatar': 'No image was provided'}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        previous = profile.avatar.name if profile.avatar else None
+        profile.avatar = uploaded
+        profile.save(update_fields=['avatar'])
+        if previous:
+            profile.avatar.storage.delete(previous)
+
+        return Response(self.get_serializer(profile).data)
 
 
 class UserPreferenceViewSet(viewsets.ModelViewSet):
