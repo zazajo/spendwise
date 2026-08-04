@@ -8,6 +8,9 @@ export function useUpdateExpense(id: number) {
     mutationFn: (payload: UpdateExpensePayload) => updateExpense(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      // An edit can move the expense between budgets, so refresh all of them
+      // rather than guessing which two changed.
+      queryClient.invalidateQueries({ queryKey: ['budgets'] });
     },
   });
 }

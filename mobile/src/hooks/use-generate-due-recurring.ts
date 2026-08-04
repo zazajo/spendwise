@@ -9,6 +9,7 @@ export function useGenerateDueRecurring() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recurring'] });
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      queryClient.invalidateQueries({ queryKey: ['budgets'] });
     },
   });
 }

@@ -59,15 +59,6 @@ export async function deleteBudget(id: number): Promise<void> {
   await api.delete(`/budgets/${id}/`);
 }
 
-// spent_amount/remaining_amount/percentage_used are cached on the row and only
-// recalculated when the budget itself is written to (create/update) - nothing
-// recomputes them when an expense changes, so callers that need current numbers
-// (e.g. opening a budget's detail screen) should hit this first.
-export async function refreshBudget(id: number): Promise<Budget> {
-  const { data } = await api.post<Budget>(`/budgets/${id}/refresh/`);
-  return data;
-}
-
 export async function fetchBudgetAlerts(params: { is_read?: boolean } = {}): Promise<BudgetAlert[]> {
   const { data } = await api.get<PaginatedResponse<BudgetAlert>>('/budget-alerts/', { params });
   return data.results;

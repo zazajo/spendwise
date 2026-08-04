@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { BudgetStatusBadge } from '@/components/budget-status-badge';
@@ -19,7 +19,6 @@ import { useCurrency } from '@/hooks/use-currency';
 import { useBudget } from '@/hooks/use-budget';
 import { useBudgetExpenses } from '@/hooks/use-budget-expenses';
 import { useDeleteBudget } from '@/hooks/use-delete-budget';
-import { useRefreshBudget } from '@/hooks/use-refresh-budget';
 import { useTheme } from '@/hooks/use-theme';
 import { showToast } from '@/hooks/use-toast';
 import { BUDGET_PERIODS } from '@/types/budget';
@@ -42,19 +41,7 @@ export default function BudgetDetailScreen() {
   const { data: budget, isLoading, isError, refetch } = useBudget(budgetId);
   const { data: recentExpenses = [] } = useBudgetExpenses(budget);
   const deleteBudget = useDeleteBudget();
-  const refreshBudget = useRefreshBudget();
   const [confirmOpen, setConfirmOpen] = useState(false);
-
-  // spent_amount/percentage_used are cached server-side and don't update when
-  // expenses change, so refresh once as soon as this budget is available.
-  const refreshedFor = useRef<number | null>(null);
-  useEffect(() => {
-    if (budget && refreshedFor.current !== budgetId) {
-      refreshedFor.current = budgetId;
-      refreshBudget.mutate(budgetId);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [budget, budgetId]);
 
   if (isLoading) {
     return (
