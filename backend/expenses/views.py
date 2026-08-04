@@ -8,6 +8,7 @@ from datetime import timedelta
 from rest_framework.permissions import IsAuthenticated
 from spendwise.date_ranges import month_start
 from spendwise.permissions import IsOwner
+from spendwise.viewsets import ReadSerializerResponseMixin
 from .models import PaymentMethod, Expense
 from .serializers import (
     PaymentMethodSerializer, ExpenseSerializer, ExpenseCreateSerializer,
@@ -46,8 +47,9 @@ class PaymentMethodViewSet(viewsets.ModelViewSet):
         return Response({'status': 'default payment method set'})
 
 
-class ExpenseViewSet(viewsets.ModelViewSet):
+class ExpenseViewSet(ReadSerializerResponseMixin, viewsets.ModelViewSet):
     """ViewSet for managing expenses"""
+    read_serializer_class = ExpenseSerializer
     permission_classes = [IsAuthenticated, IsOwner]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category', 'payment_method', 'payment_status', 'is_group_expense', 'is_anomaly']

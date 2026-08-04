@@ -6,14 +6,16 @@ from django.db.models import Sum
 from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
 from spendwise.permissions import IsOwner
+from spendwise.viewsets import ReadSerializerResponseMixin
 from .models import Budget, BudgetAlert
 from .serializers import (
     BudgetSerializer, BudgetCreateSerializer, 
     BudgetAlertSerializer
 )
 
-class BudgetViewSet(viewsets.ModelViewSet):
+class BudgetViewSet(ReadSerializerResponseMixin, viewsets.ModelViewSet):
     """ViewSet for managing budgets"""
+    read_serializer_class = BudgetSerializer
     permission_classes = [IsAuthenticated, IsOwner]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category', 'period', 'is_active']

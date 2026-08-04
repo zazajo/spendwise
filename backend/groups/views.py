@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
 from spendwise.permissions import IsGroupMember, IsGroupAdmin
+from spendwise.viewsets import ReadSerializerResponseMixin
 from .models import Group, GroupMembership, GroupExpense, GroupExpenseSplit, GroupSettlement
 from .serializers import (
     GroupSerializer, GroupMembershipSerializer, GroupInviteSerializer,
@@ -296,8 +297,9 @@ class GroupViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class GroupExpenseViewSet(viewsets.ModelViewSet):
+class GroupExpenseViewSet(ReadSerializerResponseMixin, viewsets.ModelViewSet):
     """ViewSet for managing group expenses"""
+    read_serializer_class = GroupExpenseSerializer
     permission_classes = [IsAuthenticated, IsGroupMember]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['group', 'paid_by', 'split_type']
