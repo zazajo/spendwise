@@ -218,10 +218,11 @@ class ReportService:
         member_spending = []
         for member in group.members.all():
             paid = expenses.filter(paid_by=member).aggregate(Sum('amount'))['amount__sum'] or 0
+            # Full share, matching GroupViewSet.balance - see the note there on
+            # why is_paid must not be applied on top of settlement records.
             owes = GroupExpenseSplit.objects.filter(
                 group_expense__group=group,
                 user=member,
-                is_paid=False
             ).aggregate(Sum('amount'))['amount__sum'] or 0
             
             member_spending.append({

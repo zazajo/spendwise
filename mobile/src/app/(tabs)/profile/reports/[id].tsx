@@ -102,7 +102,15 @@ export default function ReportDetailScreen() {
             onPress={() =>
               exportReport.mutate(report, {
                 onSuccess: () => showToast('Report exported'),
-                onError: () => showToast("Couldn't export report"),
+                // Show what actually went wrong: this step can fail in the
+                // download, the file write, or the share sheet, and a generic
+                // message makes those indistinguishable.
+                onError: (error) =>
+                  showToast(
+                    error instanceof Error && error.message
+                      ? `Export failed: ${error.message}`
+                      : "Couldn't export report"
+                  ),
               })
             }>
             {exportReport.isPending ? (

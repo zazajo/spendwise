@@ -90,21 +90,29 @@ export default function GroupBalancesScreen() {
               const isOwed = netAmount >= 0;
               return (
                 <View key={member.user_id} style={styles.balanceRow}>
-                  <View style={styles.balanceLeft}>
-                    <MemberAvatar name={member.nickname || member.username} size={32} />
-                    <View>
-                      <ThemedText type="smallBold" numberOfLines={1}>
-                        {member.nickname || member.username}
-                      </ThemedText>
-                      <ThemedText type="small" themeColor="textSecondary">
-                        Paid {formatCurrency(member.paid, currency)} · Owes{' '}
-                        {formatCurrency(member.owes, currency)}
-                      </ThemedText>
-                    </View>
+                  <MemberAvatar name={member.nickname || member.username} size={32} />
+                  <View style={styles.balanceText}>
+                    <ThemedText type="smallBold" numberOfLines={1}>
+                      {member.nickname || member.username}
+                    </ThemedText>
+                    <ThemedText type="small" themeColor="textSecondary">
+                      Paid {formatCurrency(member.paid, currency)} · Owes{' '}
+                      {formatCurrency(member.owes, currency)}
+                    </ThemedText>
                   </View>
                   <ThemedText
                     type="smallBold"
-                    style={{ color: Math.abs(netAmount) < 0.005 ? theme.textSecondary : isOwed ? theme.success : theme.danger }}>
+                    style={[
+                      styles.balanceAmount,
+                      {
+                        color:
+                          Math.abs(netAmount) < 0.005
+                            ? theme.textSecondary
+                            : isOwed
+                              ? theme.success
+                              : theme.danger,
+                      },
+                    ]}>
                     {formatCurrency(Math.abs(netAmount), currency)}
                   </ThemedText>
                 </View>
@@ -175,14 +183,19 @@ const styles = StyleSheet.create({
   },
   balanceRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    gap: Spacing.three,
   },
-  balanceLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
-    flexShrink: 1,
+  balanceText: {
+    // Flex items don't shrink by default in React Native, so without this the
+    // "Paid … · Owes …" line kept its full width and ran under the amount.
+    flex: 1,
+    minWidth: 0,
+  },
+  balanceAmount: {
+    // Never let the figure be squeezed by a long name or a long meta line.
+    flexShrink: 0,
+    textAlign: 'right',
   },
   historyRow: {
     flexDirection: 'row',

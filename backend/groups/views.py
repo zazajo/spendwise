@@ -202,11 +202,19 @@ class GroupViewSet(viewsets.ModelViewSet):
                 paid_by=member
             ).aggregate(Sum('amount'))['amount__sum'] or 0
             
-            # Amount owed by member (their splits that are unpaid)
+            # The member's full share of group spending, deliberately not
+            # filtered by is_paid. Settling is tracked by the GroupSettlement
+            # rows below; letting a split's is_paid flag ALSO reduce the balance
+            # counted the same payment twice, and a member's own split on an
+            # expense they paid for could be ticked off to invent money.
+            #
+            # Splits always sum to their expense's amount, so summed across the
+            # group `paid - owed` cancels to zero, and each settlement adds to
+            # one member exactly what it takes from another. The balance sheet
+            # therefore sums to zero by construction rather than by luck.
             owed = GroupExpenseSplit.objects.filter(
                 group_expense__group=group,
                 user=member,
-                is_paid=False
             ).aggregate(Sum('amount'))['amount__sum'] or 0
 
             # Lump-sum settlements already recorded between members reduce the
