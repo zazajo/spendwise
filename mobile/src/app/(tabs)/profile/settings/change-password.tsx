@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet } from 'react-native';
 import { z } from 'zod';
 
 import { FormActions } from '@/components/form-actions';
-import { TextField } from '@/components/text-field';
+import { PasswordField } from '@/components/password-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
@@ -73,10 +73,8 @@ export default function ChangePasswordScreen() {
           control={control}
           name="current_password"
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextField
+            <PasswordField
               label="Current password"
-              secureTextEntry
-              autoCapitalize="none"
               autoComplete="current-password"
               value={value}
               onChangeText={onChange}
@@ -89,10 +87,8 @@ export default function ChangePasswordScreen() {
           control={control}
           name="new_password"
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextField
+            <PasswordField
               label="New password"
-              secureTextEntry
-              autoCapitalize="none"
               autoComplete="new-password"
               value={value}
               onChangeText={onChange}
@@ -105,10 +101,8 @@ export default function ChangePasswordScreen() {
           control={control}
           name="confirm_password"
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextField
+            <PasswordField
               label="Confirm new password"
-              secureTextEntry
-              autoCapitalize="none"
               autoComplete="new-password"
               value={value}
               onChangeText={onChange}

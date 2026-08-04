@@ -1,18 +1,24 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, router } from 'expo-router';
+import { useRef } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Pressable, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, View, type TextInput } from 'react-native';
 
+import { AuthLayout } from '@/components/auth/auth-layout';
+import { FormError } from '@/components/form-error';
+import { PasswordField } from '@/components/password-field';
+import { PrimaryButton } from '@/components/primary-button';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { useLogin } from '@/hooks/use-login';
 import { loginSchema, type LoginPayload } from '@/types/auth';
+import { getApiErrorMessage } from '@/utils/api-error';
 
 export default function LoginScreen() {
   const login = useLogin();
+  const passwordRef = useRef<TextInput>(null);
+
   const {
     control,
     handleSubmit,
@@ -27,108 +33,78 @@ export default function LoginScreen() {
   });
 
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedText type="title" style={styles.title}>
-          Welcome back
-        </ThemedText>
-        <ThemedText themeColor="textSecondary">Log in to continue to SpendWise</ThemedText>
-
-        <ThemedView style={styles.form}>
-          <Controller
-            control={control}
-            name="username"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextField
-                label="Username"
-                autoCapitalize="none"
-                autoComplete="username"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.username?.message}
-              />
-            )}
+    <AuthLayout
+      title="Welcome back"
+      subtitle="Log in to pick up where you left off"
+      footer={
+        <View style={styles.footerRow}>
+          <ThemedText type="small" themeColor="textSecondary">
+            Don&apos;t have an account?
+          </ThemedText>
+          <Link href="/register">
+            <ThemedText type="linkPrimary">Sign up</ThemedText>
+          </Link>
+        </View>
+      }>
+      <Controller
+        control={control}
+        name="username"
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextField
+            label="Username"
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="username"
+            textContentType="username"
+            returnKeyType="next"
+            // Advance to the password rather than dismissing the keyboard, so
+            // the whole form can be filled without reaching for the screen.
+            onSubmitEditing={() => passwordRef.current?.focus()}
+            submitBehavior="submit"
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            error={errors.username?.message}
           />
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextField
-                label="Password"
-                secureTextEntry
-                autoCapitalize="none"
-                autoComplete="password"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.password?.message}
-              />
-            )}
+        )}
+      />
+      <Controller
+        control={control}
+        name="password"
+        render={({ field: { onChange, onBlur, value } }) => (
+          <PasswordField
+            ref={passwordRef}
+            label="Password"
+            autoComplete="current-password"
+            textContentType="password"
+            returnKeyType="go"
+            onSubmitEditing={onSubmit}
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            error={errors.password?.message}
           />
+        )}
+      />
 
-          {login.isError ? (
-            <ThemedText type="small" style={styles.formError}>
-              Invalid username or password.
-            </ThemedText>
-          ) : null}
+      {login.isError ? (
+        <FormError message={getApiErrorMessage(login.error, 'Invalid username or password.')} />
+      ) : null}
 
-          <Pressable
-            disabled={login.isPending}
-            onPress={onSubmit}
-            style={({ pressed }) => [styles.button, pressed && styles.pressed]}>
-            <ThemedText type="smallBold" style={styles.buttonText}>
-              {login.isPending ? 'Logging in…' : 'Log in'}
-            </ThemedText>
-          </Pressable>
-        </ThemedView>
-
-        <Link href="/register" style={styles.link}>
-          <ThemedText type="link">Don&apos;t have an account? Sign up</ThemedText>
-        </Link>
-      </SafeAreaView>
-    </ThemedView>
+      <PrimaryButton
+        label="Log in"
+        pendingLabel="Logging in…"
+        isPending={login.isPending}
+        onPress={onSubmit}
+      />
+    </AuthLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.three,
-    alignSelf: 'center',
-    width: '100%',
-    maxWidth: MaxContentWidth,
-  },
-  title: {
-    fontSize: 32,
-    lineHeight: 38,
-  },
-  form: {
-    gap: Spacing.three,
-    marginTop: Spacing.four,
-  },
-  button: {
-    backgroundColor: '#3c87f7',
-    borderRadius: Spacing.two,
-    paddingVertical: Spacing.three,
+  footerRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-  },
-  buttonText: {
-    color: '#ffffff',
-  },
-  pressed: {
-    opacity: 0.8,
-  },
-  formError: {
-    color: '#E5484D',
-  },
-  link: {
-    marginTop: Spacing.four,
-    alignSelf: 'center',
+    gap: Spacing.two,
   },
 });
