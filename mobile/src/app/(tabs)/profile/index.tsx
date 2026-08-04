@@ -5,6 +5,7 @@ import { Fragment } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Avatar } from '@/components/avatar';
 import { Card } from '@/components/card';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -93,8 +94,8 @@ export default function ProfileScreen() {
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
-            <View style={[styles.avatar, { backgroundColor: theme.primary }]}>
-              <ThemedText style={styles.avatarText}>{initials}</ThemedText>
+            <View style={styles.avatar}>
+              <Avatar uri={user?.profile.avatar} initials={initials} size={76} />
             </View>
             <ThemedText type="title" style={styles.name} numberOfLines={1}>
               {fullName}
@@ -235,18 +236,7 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   avatar: {
-    width: 76,
-    height: 76,
-    borderRadius: Radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
     marginBottom: Spacing.one,
-  },
-  avatarText: {
-    color: '#ffffff',
-    fontSize: 28,
-    lineHeight: 34,
-    fontWeight: '700',
   },
   name: {
     fontSize: 24,

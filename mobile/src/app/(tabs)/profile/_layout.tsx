@@ -34,6 +34,10 @@ export default function ProfileLayout() {
       />
       <Stack.Screen name="settings/index" options={{ title: 'Settings' }} />
       <Stack.Screen name="settings/edit-profile" options={{ title: 'Edit Profile', presentation: 'modal' }} />
+      <Stack.Screen
+        name="settings/change-password"
+        options={{ title: 'Change Password', presentation: 'modal' }}
+      />
       <Stack.Screen name="settings/preferences" options={{ title: 'Preferences' }} />
       <Stack.Screen name="settings/about" options={{ title: 'About' }} />
     </Stack>

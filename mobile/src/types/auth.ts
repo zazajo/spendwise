@@ -25,6 +25,8 @@ export interface Profile {
   id: number;
   username: string;
   email: string;
+  // Absolute URL, or null when the user hasn't set a picture.
+  avatar: string | null;
   currency: string;
   monthly_income: string | null;
   financial_health_score: number | null;

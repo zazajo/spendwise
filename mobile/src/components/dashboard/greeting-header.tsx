@@ -1,16 +1,17 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { Avatar } from '@/components/avatar';
 import { ThemedText } from '@/components/themed-text';
-import { useTheme } from '@/hooks/use-theme';
 
 type GreetingHeaderProps = {
   name: string;
   greeting: string;
+  /** The user's profile picture; falls back to their initial when unset. */
+  avatarUri?: string | null;
   onPressAvatar?: () => void;
 };
 
-export function GreetingHeader({ name, greeting, onPressAvatar }: GreetingHeaderProps) {
-  const theme = useTheme();
+export function GreetingHeader({ name, greeting, avatarUri, onPressAvatar }: GreetingHeaderProps) {
   const initial = name.charAt(0).toUpperCase() || '?';
 
   const today = new Date().toLocaleDateString(undefined, {
@@ -34,14 +35,8 @@ export function GreetingHeader({ name, greeting, onPressAvatar }: GreetingHeader
         accessibilityLabel="Open profile"
         disabled={!onPressAvatar}
         onPress={onPressAvatar}
-        style={({ pressed }) => [
-          styles.avatar,
-          { backgroundColor: theme.primary },
-          pressed && styles.pressed,
-        ]}>
-        <ThemedText type="smallBold" style={styles.avatarText}>
-          {initial}
-        </ThemedText>
+        style={({ pressed }) => [pressed && styles.pressed]}>
+        <Avatar uri={avatarUri} initials={initial} size={48} />
       </Pressable>
     </View>
   );
@@ -60,17 +55,6 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 26,
     lineHeight: 32,
-  },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: {
-    color: '#ffffff',
-    fontSize: 18,
   },
   pressed: {
     opacity: 0.7,

@@ -1,10 +1,13 @@
+import { Ionicons } from '@expo/vector-icons';
 import { zodResolver } from '@hookform/resolvers/zod';
+import * as ImagePicker from 'expo-image-picker';
 import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { z } from 'zod';
 
+import { Avatar } from '@/components/avatar';
 import { SelectModal, type SelectOption } from '@/components/select-modal';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
@@ -12,10 +15,12 @@ import { ThemedView } from '@/components/themed-view';
 import { CURRENCIES } from '@/constants/currencies';
 import { Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/hooks/use-auth';
+import { useRemoveAvatar, useUploadAvatar } from '@/hooks/use-update-avatar';
 import { useTheme } from '@/hooks/use-theme';
 import { showToast } from '@/hooks/use-toast';
 import { useUpdateProfileSettings } from '@/hooks/use-update-profile-settings';
 import { useUpdateUser } from '@/hooks/use-update-user';
+import { getApiErrorMessage } from '@/utils/api-error';
 
 const editProfileSchema = z.object({
   first_name: z.string().max(150).optional(),
@@ -35,10 +40,57 @@ export default function EditProfileScreen() {
   const { user } = useAuth();
   const updateUser = useUpdateUser();
   const updateProfileSettings = useUpdateProfileSettings();
+  const uploadAvatar = useUploadAvatar();
+  const removeAvatar = useRemoveAvatar();
   const [currencyPickerOpen, setCurrencyPickerOpen] = useState(false);
 
   const isSubmitting = updateUser.isPending || updateProfileSettings.isPending;
   const isError = updateUser.isError || updateProfileSettings.isError;
+  const isAvatarBusy = uploadAvatar.isPending || removeAvatar.isPending;
+
+  const firstName = user?.first_name?.trim() ?? '';
+  const lastName = user?.last_name?.trim() ?? '';
+  const initials =
+    ((firstName.charAt(0) || user?.username?.charAt(0) || '?') + lastName.charAt(0)).toUpperCase();
+
+  async function onPickAvatar() {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      showToast('Photo access is needed to pick a picture');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      // Avatars render at 76pt; full-resolution photos would be a slow upload
+      // for pixels nobody sees.
+      quality: 0.7,
+    });
+    if (result.canceled) return;
+
+    const [asset] = result.assets;
+    try {
+      await uploadAvatar.mutateAsync({
+        uri: asset.uri,
+        mimeType: asset.mimeType,
+        fileName: asset.fileName ?? undefined,
+      });
+      showToast('Profile picture updated');
+    } catch (error) {
+      showToast(getApiErrorMessage(error, "Couldn't upload that picture."));
+    }
+  }
+
+  async function onRemoveAvatar() {
+    try {
+      await removeAvatar.mutateAsync();
+      showToast('Profile picture removed');
+    } catch (error) {
+      showToast(getApiErrorMessage(error, "Couldn't remove your picture."));
+    }
+  }
 
   const {
     control,
@@ -79,6 +131,41 @@ export default function EditProfileScreen() {
     <ThemedView style={{ flex: 1 }}>
       <Stack.Screen options={{ title: 'Edit Profile', presentation: 'modal' }} />
       <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.avatarSection}>
+          <Avatar uri={user?.profile.avatar} initials={initials} size={96} />
+          <View style={styles.avatarButtons}>
+            <Pressable
+              disabled={isAvatarBusy}
+              onPress={onPickAvatar}
+              style={({ pressed }) => [
+                styles.avatarButton,
+                { backgroundColor: theme.primarySoft },
+                (pressed || isAvatarBusy) && styles.pressed,
+              ]}>
+              <Ionicons name="image-outline" size={16} color={theme.primary} />
+              <ThemedText type="smallBold" style={{ color: theme.primary }}>
+                {uploadAvatar.isPending ? 'Uploading…' : 'Change photo'}
+              </ThemedText>
+            </Pressable>
+
+            {user?.profile.avatar ? (
+              <Pressable
+                disabled={isAvatarBusy}
+                onPress={onRemoveAvatar}
+                style={({ pressed }) => [
+                  styles.avatarButton,
+                  { backgroundColor: theme.backgroundElement },
+                  (pressed || isAvatarBusy) && styles.pressed,
+                ]}>
+                <Ionicons name="trash-outline" size={16} color={theme.danger} />
+                <ThemedText type="smallBold" style={{ color: theme.danger }}>
+                  {removeAvatar.isPending ? 'Removing…' : 'Remove'}
+                </ThemedText>
+              </Pressable>
+            ) : null}
+          </View>
+        </View>
+
         <Controller
           control={control}
           name="first_name"
@@ -150,6 +237,23 @@ export default function EditProfileScreen() {
           )}
         />
 
+        <Pressable
+          onPress={() => router.push('/profile/settings/change-password')}
+          style={({ pressed }) => [
+            styles.passwordRow,
+            { backgroundColor: theme.backgroundElement },
+            pressed && styles.pressed,
+          ]}>
+          <Ionicons name="lock-closed-outline" size={18} color={theme.textSecondary} />
+          <View style={styles.passwordRowText}>
+            <ThemedText type="smallBold">Change password</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              Update the password you sign in with
+            </ThemedText>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+        </Pressable>
+
         {isError ? (
           <ThemedText type="small" themeColor="danger">
             Something went wrong. Please try again.
@@ -196,6 +300,36 @@ const styles = StyleSheet.create({
   },
   field: {
     gap: Spacing.one,
+  },
+  avatarSection: {
+    alignItems: 'center',
+    gap: Spacing.two,
+    marginBottom: Spacing.one,
+  },
+  avatarButtons: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+  },
+  avatarButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.one,
+    borderRadius: Radius.pill,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two,
+  },
+  passwordRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+    borderRadius: Radius.medium,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.three,
+    marginTop: Spacing.one,
+  },
+  passwordRowText: {
+    flex: 1,
+    gap: Spacing.half,
   },
   pickerTrigger: {
     borderRadius: Radius.medium,

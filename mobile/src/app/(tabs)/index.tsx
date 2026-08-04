@@ -78,6 +78,7 @@ export default function HomeScreen() {
           <GreetingHeader
             name={name}
             greeting={greeting}
+            avatarUri={user?.profile.avatar}
             onPressAvatar={() => router.push('/profile')}
           />
 
