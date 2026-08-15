@@ -30,6 +30,11 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
+# OAuth client ID for "Sign in with Google". Verified against the `aud` claim
+# of the id_token in accounts/views.py::GoogleLoginView - empty in an
+# environment that hasn't set it up, which just makes that endpoint 501.
+GOOGLE_OAUTH_CLIENT_ID = env('GOOGLE_OAUTH_CLIENT_ID', default='')
+
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 
 

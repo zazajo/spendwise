@@ -17,3 +17,9 @@ function resolveApiBaseUrl(): string {
 }
 
 export const API_BASE_URL = resolveApiBaseUrl();
+
+// "Sign in with Google" - both unset just means the button doesn't render
+// (see login.tsx/register.tsx), so this project keeps working before anyone
+// has walked through the Google Cloud Console setup.
+export const GOOGLE_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID ?? '';
+export const GOOGLE_RELAY_URL = process.env.EXPO_PUBLIC_GOOGLE_RELAY_URL ?? '';

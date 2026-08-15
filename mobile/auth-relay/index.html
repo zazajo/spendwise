@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Signing in…</title>
+<style>
+  body {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0b0b10;
+    color: #ffffff;
+  }
+  p {
+    font-size: 15px;
+    opacity: 0.8;
+  }
+</style>
+</head>
+<body>
+<p id="message">Signing you in…</p>
+<script>
+  // Google's Web-application OAuth clients only accept https:// redirect
+  // URIs, so this page is what Google actually redirects to. Its only job
+  // is to hand off to the SpendWise app's own callback URL - passed through
+  // as `state` when the app started the sign-in flow, since Google doesn't
+  // forward any params of ours except `state` - which is what the app is
+  // actually listening for.
+  (function () {
+    var params = new URLSearchParams(window.location.hash.slice(1));
+    var idToken = params.get('id_token');
+    var state = params.get('state');
+    var error = params.get('error');
+
+    if (idToken && state) {
+      var separator = state.indexOf('?') === -1 ? '?' : '&';
+      window.location.replace(state + separator + 'id_token=' + encodeURIComponent(idToken));
+      return;
+    }
+
+    document.getElementById('message').textContent = error
+      ? 'Sign-in failed: ' + error
+      : 'Sign-in was cancelled. You can close this window and try again.';
+  })();
+</script>
+</body>
+</html>

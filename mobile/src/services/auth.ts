@@ -16,6 +16,13 @@ export async function register(payload: RegisterPayload): Promise<RegisterRespon
   return data;
 }
 
+export async function loginWithGoogle(googleIdToken: string): Promise<LoginResponse> {
+  const { data } = await api.post<LoginResponse>('/token/google/', { id_token: googleIdToken });
+  await setStoredTokens({ access: data.access, refresh: data.refresh });
+  setAccessToken(data.access);
+  return data;
+}
+
 export async function logout(refreshToken: string): Promise<void> {
   // Best-effort: even if the blacklist call fails (e.g. offline), the caller
   // still clears local tokens so the app treats the session as ended.

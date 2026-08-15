@@ -5,18 +5,25 @@ import { Controller, useForm } from 'react-hook-form';
 import { StyleSheet, View, type TextInput } from 'react-native';
 
 import { AuthLayout } from '@/components/auth/auth-layout';
+import { GoogleSignInButton } from '@/components/auth/google-sign-in-button';
+import { OrDivider } from '@/components/auth/or-divider';
 import { FormError } from '@/components/form-error';
 import { PasswordField } from '@/components/password-field';
 import { PrimaryButton } from '@/components/primary-button';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
+import { GOOGLE_CLIENT_ID, GOOGLE_RELAY_URL } from '@/constants/config';
 import { Spacing } from '@/constants/theme';
+import { useGoogleLogin } from '@/hooks/use-google-login';
 import { useLogin } from '@/hooks/use-login';
 import { loginSchema, type LoginPayload } from '@/types/auth';
 import { getApiErrorMessage } from '@/utils/api-error';
 
+const isGoogleSignInEnabled = Boolean(GOOGLE_CLIENT_ID && GOOGLE_RELAY_URL);
+
 export default function LoginScreen() {
   const login = useLogin();
+  const googleLogin = useGoogleLogin();
   const passwordRef = useRef<TextInput>(null);
 
   const {
@@ -97,6 +104,21 @@ export default function LoginScreen() {
         isPending={login.isPending}
         onPress={onSubmit}
       />
+
+      {isGoogleSignInEnabled ? (
+        <>
+          <OrDivider />
+          {googleLogin.isError ? (
+            <FormError
+              message={getApiErrorMessage(googleLogin.error, 'Could not sign in with Google.')}
+            />
+          ) : null}
+          <GoogleSignInButton
+            isPending={googleLogin.isPending}
+            onPress={() => googleLogin.mutate()}
+          />
+        </>
+      ) : null}
     </AuthLayout>
   );
 }

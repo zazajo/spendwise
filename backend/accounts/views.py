@@ -1,3 +1,6 @@
+from django.conf import settings
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token as google_id_token
 from rest_framework import generics, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, MultiPartParser
@@ -7,6 +10,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from django.contrib.auth.models import User
+from django.utils.text import slugify
 from .models import Profile, UserPreference
 from .serializers import (
     UserSerializer, UserRegistrationSerializer, UserUpdateSerializer,
@@ -44,6 +48,68 @@ class UserRegistrationView(generics.CreateAPIView):
 class MobileTokenObtainPairView(TokenObtainPairView):
     """Login endpoint. Returns access/refresh tokens plus the user's profile."""
     serializer_class = MobileTokenObtainPairSerializer
+
+
+def _unique_username_from_email(email):
+    """Turn 'jane.doe@gmail.com' into a free 'janedoe' username, falling back
+    to numbered suffixes on collision - Google gives us an email, not a
+    username, but the User model still needs one."""
+    base = slugify(email.split('@', 1)[0]).replace('-', '') or 'user'
+    username = base
+    suffix = 1
+    while User.objects.filter(username=username).exists():
+        suffix += 1
+        username = f'{base}{suffix}'
+    return username
+
+
+class GoogleLoginView(APIView):
+    """
+    'Sign in with Google' for the mobile app: verifies the id_token Google
+    handed the client, then finds or creates a matching User and returns the
+    same {access, refresh, user} shape as the regular /token/ login so the
+    client can treat both the same way from here on.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        if not settings.GOOGLE_OAUTH_CLIENT_ID:
+            return Response(
+                {'error': 'Google sign-in is not configured on this server'}, status=501
+            )
+
+        token = request.data.get('id_token')
+        if not token:
+            return Response({'error': 'id_token is required'}, status=400)
+
+        try:
+            claims = google_id_token.verify_oauth2_token(
+                token, google_requests.Request(), settings.GOOGLE_OAUTH_CLIENT_ID
+            )
+        except ValueError:
+            return Response({'error': 'Invalid Google token'}, status=401)
+
+        email = claims.get('email')
+        if not email or not claims.get('email_verified'):
+            return Response({'error': 'Google account has no verified email'}, status=401)
+
+        user = User.objects.filter(email=email).first()
+        if user is None:
+            # password=None makes create_user() set an unusable password -
+            # this account only ever signs in through Google.
+            user = User.objects.create_user(
+                username=_unique_username_from_email(email),
+                email=email,
+                first_name=claims.get('given_name', ''),
+                last_name=claims.get('family_name', ''),
+            )
+
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'user': UserDetailSerializer(user, context={'request': request}).data,
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+        })
 
 
 class LogoutView(APIView):

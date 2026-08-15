@@ -12,6 +12,7 @@ interface AuthContextValue {
   status: AuthStatus;
   user: User | null;
   login: (payload: LoginPayload) => Promise<void>;
+  loginWithGoogle: (googleIdToken: string) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<void>;
   logout: () => Promise<void>;
   // Re-fetches /users/me/ and updates local state - lets Settings screens
@@ -64,6 +65,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
       user,
       async login(payload) {
         const data = await authService.login(payload);
+        setUser(data.user);
+        setStatus('authenticated');
+      },
+      async loginWithGoogle(googleIdToken) {
+        const data = await authService.loginWithGoogle(googleIdToken);
         setUser(data.user);
         setStatus('authenticated');
       },
